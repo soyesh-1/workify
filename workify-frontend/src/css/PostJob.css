@@ -1,0 +1,48 @@
+.post-job-container {
+    display: flex;
+    justify-content: center;
+    padding: 50px;
+    background-color: #f4f4f4;
+    min-height: 100vh;
+}
+
+.post-job-form {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    width: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+.post-job-input {
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.post-job-textarea {
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    height: 100px;
+    font-family: inherit;
+}
+
+.submit-job-btn {
+    padding: 12px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+.submit-job-btn:hover {
+    background: #0056b3;
+}
