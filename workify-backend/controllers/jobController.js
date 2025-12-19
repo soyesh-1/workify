@@ -55,3 +55,19 @@ exports.applyForJob = async (req, res) => {
         res.status(500).json({ message: "Error applying for job", error: error.message });
     }
 };
+
+// 4. GET APPLICANTS FOR A JOB (Recruiter)
+exports.getJobApplicants = async (req, res) => {
+    try {
+        const { jobId } = req.params;
+        
+        // Find job and populate the 'applicants' list with user details
+        const job = await Job.findById(jobId).populate('applicants', 'username email');
+        
+        if (!job) return res.status(404).json({ message: "Job not found" });
+
+        res.json(job.applicants);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching applicants", error: error.message });
+    }
+};

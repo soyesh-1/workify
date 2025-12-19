@@ -3,6 +3,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import PostJob from './pages/PostJob';
+import JobApplicants from './pages/JobApplicants';
 
 // REMOVE the import for Navbar here if it exists!
 
@@ -18,6 +19,7 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/post-job" element={<PostJob />} />
+          <Route path="/job-applicants/:jobId" element={<JobApplicants />} />
         </Routes>
       </div>
     </Router>

@@ -27,7 +27,7 @@ const Dashboard = () => {
         fetchJobs();
     }, []);
 
-    // NEW: Handle Apply Logic
+    // Handle Apply Logic
     const handleApply = async (jobId) => {
         try {
             await axios.post(`http://localhost:5004/api/jobs/apply/${jobId}`, { userId });
@@ -116,7 +116,13 @@ const Dashboard = () => {
                                         {hasApplied ? "✅ Applied" : "Apply Now"}
                                     </button>
                                 ) : (
-                                    <button className="view-btn">View Applicants ({job.applicants.length})</button>
+                                    // --- UPDATED BUTTON FOR RECRUITER ---
+                                    <button 
+                                        className="view-btn"
+                                        onClick={() => navigate(`/job-applicants/${job._id}`)}
+                                    >
+                                        View Applicants ({job.applicants.length})
+                                    </button>
                                 )}
                             </div>
                         );
