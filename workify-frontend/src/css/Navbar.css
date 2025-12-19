@@ -1,0 +1,113 @@
+/* Navbar Container - White and Clean */
+.navbar {
+    background-color: white;
+    height: 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Very subtle shadow */
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+/* Brand / Logo (Optional, if you want it on the far left) */
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    text-decoration: none;
+    margin-right: auto; /* Pushes links to center/right if needed */
+}
+
+/* Navigation Links - Centered/Left */
+.navbar-center {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    margin-right: auto; /* Push buttons to the far right */
+    margin-left: 50px; /* Spacing from logo */
+}
+
+.nav-link {
+    color: #333;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500; /* Regular weight like image */
+    cursor: pointer;
+}
+
+.nav-link:hover {
+    color: #1DBF73; /* Teal hover */
+}
+
+/* Dropdown Arrow for "Browse Jobs" */
+.dropdown-indicator::after {
+    content: ' ▼';
+    font-size: 0.6em;
+    position: relative;
+    top: -2px;
+    margin-left: 5px;
+    color: #333;
+}
+
+/* Right Side: Auth Buttons */
+.navbar-auth {
+    display: flex;
+    gap: 15px; /* Space between buttons */
+    align-items: center;
+}
+
+/* --- BUTTON STYLES (MATCHING IMAGE) --- */
+
+.nav-btn {
+    padding: 10px 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 0px; /* SHARP RECTANGLES */
+    display: inline-block;
+    transition: all 0.2s ease;
+}
+
+/* SIGN UP BUTTON: Solid Teal, White Text */
+.btn-signup {
+    background-color: #1DBF73; /* The exact Green/Teal from your image */
+    border: 1px solid #1DBF73;
+    color: white;
+}
+
+.btn-signup:hover {
+    background-color: #15a865;
+    border-color: #15a865;
+}
+
+/* LOGIN BUTTON: White Background, Dark Border, Black Text */
+.btn-login {
+    background-color: white;
+    border: 1px solid #333; /* Dark border like image */
+    color: #333;
+}
+
+.btn-login:hover {
+    background-color: #f9f9f9;
+    border-color: #000;
+}
+
+.btn-logout {
+    background-color: white;
+    color: #1DBF73; /* Teal Text */
+    border: 1px solid #1DBF73; /* Teal Border */
+    padding: 10px 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-logout:hover {
+    background-color: #dc3545; /* Turns Red only when you hover (Warning) */
+    color: white;
+    border-color: #dc3545;
+}
