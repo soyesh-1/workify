@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
-import '../css/AuthStyles.css'; // Reusing your clean teal form styles
+import '../css/EditJob.css'; // <--- IMPORT THE NEW CSS FILE HERE
 
 const EditJob = () => {
     const { jobId } = useParams();
@@ -30,7 +30,7 @@ const EditJob = () => {
                         salary: job.salary,
                         jobType: job.jobType,
                         description: job.description,
-                        requirements: job.requirements.join(', ')
+                        requirements: Array.isArray(job.requirements) ? job.requirements.join(', ') : job.requirements
                     });
                 }
             } catch (err) {
@@ -63,29 +63,112 @@ const EditJob = () => {
     };
 
     return (
-        <div className="auth-container">
+        <div>
             <Navbar />
-            <div className="auth-card" style={{ marginTop: '50px', maxWidth: '600px' }}>
-                <h2 style={{ color: '#14b8a6', textAlign: 'center' }}>Edit Job Posting</h2>
-                <form onSubmit={handleSubmit} className="auth-form">
-                    <input type="text" name="title" value={formData.title} onChange={handleChange} placeholder="Job Title" required />
-                    <input type="text" name="company" value={formData.company} onChange={handleChange} placeholder="Company Name" required />
-                    <input type="text" name="location" value={formData.location} onChange={handleChange} placeholder="Location" required />
-                    <input type="text" name="salary" value={formData.salary} onChange={handleChange} placeholder="Salary (e.g. Rs. 50,000)" required />
+            <div className="edit-job-container">
+                <div className="edit-job-card">
+                    <h2 className="edit-job-title">Edit Job Posting</h2>
                     
-                    <select name="jobType" value={formData.jobType} onChange={handleChange}>
-                        <option value="Full-time">Full-time</option>
-                        <option value="Part-time">Part-time</option>
-                        <option value="Contract">Contract</option>
-                        <option value="Remote">Remote</option>
-                    </select>
+                    <form onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <label className="form-label">Job Title</label>
+                            <input 
+                                type="text" 
+                                name="title" 
+                                className="form-input" 
+                                value={formData.title} 
+                                onChange={handleChange} 
+                                required 
+                            />
+                        </div>
 
-                    <textarea name="description" value={formData.description} onChange={handleChange} placeholder="Job Description" rows="4" required />
-                    <input type="text" name="requirements" value={formData.requirements} onChange={handleChange} placeholder="Requirements (comma separated)" required />
+                        <div className="form-group">
+                            <label className="form-label">Company</label>
+                            <input 
+                                type="text" 
+                                name="company" 
+                                className="form-input" 
+                                value={formData.company} 
+                                onChange={handleChange} 
+                                required 
+                            />
+                        </div>
 
-                    <button type="submit" className="auth-button">Update Job</button>
-                    <button type="button" className="auth-button" style={{ backgroundColor: '#64748b', marginTop: '10px' }} onClick={() => navigate('/dashboard')}>Cancel</button>
-                </form>
+                        <div className="form-group">
+                            <label className="form-label">Location</label>
+                            <input 
+                                type="text" 
+                                name="location" 
+                                className="form-input" 
+                                value={formData.location} 
+                                onChange={handleChange} 
+                                required 
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">Salary</label>
+                            <input 
+                                type="text" 
+                                name="salary" 
+                                className="form-input" 
+                                value={formData.salary} 
+                                onChange={handleChange} 
+                                required 
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">Job Type</label>
+                            <select 
+                                name="jobType" 
+                                className="form-select" 
+                                value={formData.jobType} 
+                                onChange={handleChange}
+                            >
+                                <option value="Full-time">Full-time</option>
+                                <option value="Part-time">Part-time</option>
+                                <option value="Contract">Contract</option>
+                                <option value="Remote">Remote</option>
+                            </select>
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">Requirements (comma separated)</label>
+                            <input 
+                                type="text" 
+                                name="requirements" 
+                                className="form-input" 
+                                value={formData.requirements} 
+                                onChange={handleChange} 
+                                required 
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">Description</label>
+                            <textarea 
+                                name="description" 
+                                className="form-textarea" 
+                                rows="5" 
+                                value={formData.description} 
+                                onChange={handleChange} 
+                                required 
+                            />
+                        </div>
+
+                        <div className="button-group">
+                            <button type="submit" className="btn btn-update">Update Job</button>
+                            <button 
+                                type="button" 
+                                className="btn btn-cancel" 
+                                onClick={() => navigate('/dashboard')}
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     );

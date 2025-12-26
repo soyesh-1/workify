@@ -94,11 +94,14 @@ exports.deleteJob = async (req, res) => {
     }
 };
 
-// 6. UPDATE A JOB (With Security Check)
+// 6. UPDATE A JOB (Corrected)
 exports.updateJob = async (req, res) => {
     try {
-        const { jobId } = req.params;
-        const job = await Job.findById(jobId);
+        // CHANGE 1: Use 'id' because your route is defined as router.put('/update/:id')
+        const { id } = req.params; 
+        
+        // CHANGE 2: Pass 'id' to the finder
+        const job = await Job.findById(id); 
 
         if (!job) return res.status(404).json({ message: "Job not found" });
 
@@ -107,7 +110,9 @@ exports.updateJob = async (req, res) => {
             return res.status(401).json({ message: "Not authorized to update this job" });
         }
 
-        const updatedJob = await Job.findByIdAndUpdate(jobId, req.body, { new: true });
+        // CHANGE 3: Pass 'id' to the updater as well
+        const updatedJob = await Job.findByIdAndUpdate(id, req.body, { new: true });
+        
         res.json({ message: "Job Updated Successfully!", updatedJob });
     } catch (error) {
         res.status(500).json({ message: "Error updating job", error: error.message });

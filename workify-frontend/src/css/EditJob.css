@@ -1,0 +1,134 @@
+/* Main container for the edit page content, excluding the navbar */
+.edit-job-container {
+  background-color: #f4f7f6; /* Light gray background for contrast */
+  min-height: 90vh; /* Occupy most of the screen height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+/* The card that holds the form */
+.edit-job-card {
+  background-color: #ffffff;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); /* Soft shadow for depth */
+  width: 100%;
+  max-width: 650px; /* Maximum width for the form */
+  box-sizing: border-box;
+}
+
+/* Page Title */
+.edit-job-title {
+  color: #00bfa5; /* Teal color matched from the image */
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+/* Container for each form field (label + input) */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+/* Styling for labels */
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #4a4a4a;
+  font-size: 0.95rem;
+}
+
+/* Styling for all input types */
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  padding: 0.85rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #333;
+  background-color: #fff;
+  transition: all 0.3s ease;
+  box-sizing: border-box; /* Ensures padding doesn't affect width */
+}
+
+/* Focus state for inputs */
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #00bfa5; /* Teal border on focus */
+  box-shadow: 0 0 0 3px rgba(0, 191, 165, 0.1); /* Subtle teal glow */
+}
+
+/* Specific styling for textarea */
+.form-textarea {
+  resize: vertical; /* Allow vertical resizing only */
+  min-height: 120px;
+  font-family: inherit;
+}
+
+/* Container for the buttons */
+.button-group {
+  display: flex;
+  gap: 1rem; /* Space between buttons */
+  margin-top: 2.5rem;
+}
+
+/* General button styles */
+.btn {
+  flex: 1; /* Buttons take up equal space */
+  padding: 0.85rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  text-align: center;
+}
+
+.btn:active {
+  transform: translateY(1px); /* Slight press effect */
+}
+
+/* Update Job Button (Primary) */
+.btn-update {
+  background-color: #00bfa5; /* Teal color */
+  color: white;
+}
+
+.btn-update:hover {
+  background-color: #00a896; /* Slightly darker teal on hover */
+}
+
+/* Cancel Button (Secondary) */
+.btn-cancel {
+  background-color: #546e7a; /* Dark gray color */
+  color: white;
+}
+
+.btn-cancel:hover {
+  background-color: #455a64; /* Slightly darker gray on hover */
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 600px) {
+  .edit-job-card {
+    padding: 1.5rem;
+  }
+  
+  .button-group {
+    flex-direction: column; /* Stack buttons vertically */
+  }
+  
+  .btn {
+    width: 100%;
+  }
+}

@@ -1,23 +1,28 @@
 const express = require('express');
 const router = express.Router();
-// Import the controller functions
-const { postJob, getAllJobs, applyForJob, getJobApplicants } = require('../controllers/jobController');
 
-// 1. IMPORT the protect middleware (Make sure the path matches your folder structure)
+// 1. IMPORT the updateJob controller (You need to create this function in your controller file if you haven't!)
+const { 
+    postJob, 
+    getAllJobs, 
+    applyForJob, 
+    getJobApplicants,
+    updateJob // <--- ADD THIS
+} = require('../controllers/jobController');
+
 const { protect } = require('../middleware/authMiddleware');
 
 // --- ROUTES ---
 
-// Public: Anyone can view jobs
 router.get('/all', getAllJobs);
 
-// Protected: Requires a token to post a job
 router.post('/post', protect, postJob);
 
-// Protected: Requires a token to apply
+// 2. ADD THIS ROUTE definition to match your frontend URL (/api/jobs/update/:id)
+router.put('/update/:id', protect, updateJob); 
+
 router.post('/apply/:jobId', protect, applyForJob);
 
-// Protected: Only logged-in recruiters should see this
 router.get('/applicants/:jobId', protect, getJobApplicants);
 
 module.exports = router;
