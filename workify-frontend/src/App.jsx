@@ -4,22 +4,36 @@ import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import PostJob from './pages/PostJob';
 import JobApplicants from './pages/JobApplicants';
+import EditJob from './pages/EditJob';
 
-// REMOVE the import for Navbar here if it exists!
+// The Security Guard: Prevents unauthorized access
+const ProtectedRoute = ({ children, allowedRole }) => {
+  const token = localStorage.getItem('token');
+  const role = localStorage.getItem('role');
+
+  if (!token) return <Navigate to="/login" />;
+  if (allowedRole && role !== allowedRole) return <Navigate to="/dashboard" />;
+
+  return children;
+};
 
 function App() {
   return (
     <Router>
       <div className="App">
-        {/* MAKE SURE THERE IS NO <Navbar /> TAG HERE */}
-        
         <Routes>
+          {/* Public Routes - No Navbar here */}
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/post-job" element={<PostJob />} />
-          <Route path="/job-applicants/:jobId" element={<JobApplicants />} />
+
+          {/* Secure Private Routes */}
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          
+          {/* Secure Recruiter Only Routes */}
+          <Route path="/post-job" element={<ProtectedRoute allowedRole="recruiter"><PostJob /></ProtectedRoute>} />
+          <Route path="/job-applicants/:jobId" element={<ProtectedRoute allowedRole="recruiter"><JobApplicants /></ProtectedRoute>} />
+          <Route path="/edit-job/:jobId" element={<ProtectedRoute allowedRole="recruiter"><EditJob /></ProtectedRoute>} />
         </Routes>
       </div>
     </Router>

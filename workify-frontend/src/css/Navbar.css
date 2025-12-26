@@ -12,54 +12,46 @@
     z-index: 100;
 }
 
-/* Brand / Logo (Optional, if you want it on the far left) */
+/* Brand / Logo */
 .navbar-brand {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #333;
+    color: #14b8a6; /* Updated to Teal for branding consistency */
     text-decoration: none;
-    margin-right: auto; /* Pushes links to center/right if needed */
+    margin-right: auto; 
 }
 
-/* Navigation Links - Centered/Left */
+/* Navigation Links */
 .navbar-center {
     display: flex;
     gap: 30px;
     align-items: center;
-    margin-right: auto; /* Push buttons to the far right */
-    margin-left: 50px; /* Spacing from logo */
+    margin-right: auto; 
+    margin-left: 50px; 
 }
 
 .nav-link {
     color: #333;
     text-decoration: none;
     font-size: 1rem;
-    font-weight: 500; /* Regular weight like image */
+    font-weight: 500; 
     cursor: pointer;
+    transition: color 0.2s;
 }
 
+/* Forces ALL nav links (including Post Job) to hover Teal */
 .nav-link:hover {
-    color: #1DBF73; /* Teal hover */
-}
-
-/* Dropdown Arrow for "Browse Jobs" */
-.dropdown-indicator::after {
-    content: ' ▼';
-    font-size: 0.6em;
-    position: relative;
-    top: -2px;
-    margin-left: 5px;
-    color: #333;
+    color: #14b8a6 !important; 
 }
 
 /* Right Side: Auth Buttons */
 .navbar-auth {
     display: flex;
-    gap: 15px; /* Space between buttons */
+    gap: 15px; 
     align-items: center;
 }
 
-/* --- BUTTON STYLES (MATCHING IMAGE) --- */
+/* --- BUTTON STYLES --- */
 
 .nav-btn {
     padding: 10px 25px;
@@ -72,34 +64,36 @@
     transition: all 0.2s ease;
 }
 
-/* SIGN UP BUTTON: Solid Teal, White Text */
+/* SIGN UP BUTTON: Fixed Hover to Teal */
 .btn-signup {
-    background-color: #1DBF73; /* The exact Green/Teal from your image */
-    border: 1px solid #1DBF73;
+    background-color: #14b8a6; 
+    border: 1px solid #14b8a6;
     color: white;
 }
 
 .btn-signup:hover {
-    background-color: #15a865;
-    border-color: #15a865;
+    background-color: #0d9488; /* Darker Teal instead of Blue */
+    border-color: #0d9488;
 }
 
-/* LOGIN BUTTON: White Background, Dark Border, Black Text */
+/* LOGIN BUTTON */
 .btn-login {
     background-color: white;
-    border: 1px solid #333; /* Dark border like image */
+    border: 1px solid #333; 
     color: #333;
 }
 
 .btn-login:hover {
     background-color: #f9f9f9;
-    border-color: #000;
+    border-color: #14b8a6; /* Updated border to Teal on hover */
+    color: #14b8a6;
 }
 
+/* LOGOUT BUTTON */
 .btn-logout {
     background-color: white;
-    color: #1DBF73; /* Teal Text */
-    border: 1px solid #1DBF73; /* Teal Border */
+    color: #14b8a6; 
+    border: 1px solid #14b8a6; 
     padding: 10px 25px;
     font-weight: 600;
     cursor: pointer;
@@ -107,7 +101,7 @@
 }
 
 .btn-logout:hover {
-    background-color: #dc3545; /* Turns Red only when you hover (Warning) */
+    background-color: #dc3545; /* Red Warning */
     color: white;
     border-color: #dc3545;
 }
