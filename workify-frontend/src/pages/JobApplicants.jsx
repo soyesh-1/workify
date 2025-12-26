@@ -7,7 +7,7 @@ import '../css/Dashboard.css';
 const JobApplicants = () => {
     const { jobId } = useParams();
     const navigate = useNavigate();
-    const [applicants, setApplicants] = useState([]); // Initialized as array to prevent .map errors
+    const [applicants, setApplicants] = useState([]); 
     const [jobTitle, setJobTitle] = useState("");
     const [loading, setLoading] = useState(true);
 
@@ -19,7 +19,6 @@ const JobApplicants = () => {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 
-                // Fix for the .map crash: Access the array inside the object
                 if (res.data && res.data.applicants) {
                     setApplicants(res.data.applicants);
                 } else {
@@ -36,9 +35,14 @@ const JobApplicants = () => {
         fetchApplicants();
     }, [jobId]);
 
+    // 1. UPDATE: Function to handle CV download
     const handleDownloadCV = (cvPath) => {
-        if (!cvPath) return alert("CV not provided");
-        // Ensure this points to your backend URL
+        if (!cvPath) {
+            alert("CV not provided by this candidate");
+            return;
+        }
+        // Open the file in a new tab
+        // Assuming your backend runs on port 5004
         window.open(`http://localhost:5004/${cvPath}`, '_blank');
     };
 
@@ -84,10 +88,11 @@ const JobApplicants = () => {
                                             <td>{app.phone || "N/A"}</td>
                                             <td>{app.appliedDate ? new Date(app.appliedDate).toLocaleDateString() : "Recently"}</td>
                                             <td className="action-cell">
+                                                {/* 2. UPDATE: Pass 'app.resume' instead of 'app.resumePath' */}
                                                 <button 
                                                     className="btn-primary btn-apply" 
                                                     style={{fontSize: '0.8rem', padding: '8px 12px'}}
-                                                    onClick={() => handleDownloadCV(app.resumePath)}
+                                                    onClick={() => handleDownloadCV(app.resume)} 
                                                 >
                                                     View CV
                                                 </button>

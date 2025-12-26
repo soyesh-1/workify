@@ -1,4 +1,5 @@
 const Job = require('../models/jobModel');
+const User = require('../models/userModel'); // <--- IMPORT THIS to save resume
 
 // 1. POST A JOB
 exports.postJob = async (req, res) => {
@@ -32,11 +33,20 @@ exports.getAllJobs = async (req, res) => {
     }
 };
 
-// 3. APPLY FOR A JOB
+// 3. APPLY FOR A JOB (UPDATED FOR FILE UPLOAD)
 exports.applyForJob = async (req, res) => {
     try {
         const { jobId } = req.params;
-        const { userId } = req.body;
+        // Use ID from token (safer) instead of body
+        const userId = req.user.id; 
+
+        // 1. Check if file exists
+        if (!req.file) {
+            return res.status(400).json({ message: "Please upload a resume (PDF)" });
+        }
+
+        // 2. Normalize path for Windows (replace \ with /)
+        const resumePath = req.file.path.replace(/\\/g, "/");
 
         const job = await Job.findById(jobId);
         if (!job) return res.status(404).json({ message: "Job not found" });
@@ -45,23 +55,28 @@ exports.applyForJob = async (req, res) => {
             return res.status(400).json({ message: "You have already applied for this job" });
         }
 
+        // 3. SAVE RESUME TO USER PROFILE
+        await User.findByIdAndUpdate(userId, { resume: resumePath });
+
+        // 4. Add user to applicants list
         job.applicants.push(userId);
         await job.save();
 
-        res.json({ message: "Application Successful!" });
+        res.json({ message: "Application Successful!", resumePath });
     } catch (error) {
         res.status(500).json({ message: "Error applying for job", error: error.message });
     }
 };
 
-// 4. GET APPLICANTS FOR A JOB
+// 4. GET APPLICANTS FOR A JOB (UPDATED TO FETCH RESUME)
 exports.getJobApplicants = async (req, res) => {
     try {
         const { jobId } = req.params;
         
         const job = await Job.findById(jobId).populate({
             path: 'applicants',
-            select: 'username email'
+            // ADD 'resume' to this list so frontend receives it
+            select: 'username email resume' 
         });
         
         if (!job) return res.status(404).json({ message: "Job not found" });
@@ -94,13 +109,11 @@ exports.deleteJob = async (req, res) => {
     }
 };
 
-// 6. UPDATE A JOB (Corrected)
+// 6. UPDATE A JOB
 exports.updateJob = async (req, res) => {
     try {
-        // CHANGE 1: Use 'id' because your route is defined as router.put('/update/:id')
         const { id } = req.params; 
         
-        // CHANGE 2: Pass 'id' to the finder
         const job = await Job.findById(id); 
 
         if (!job) return res.status(404).json({ message: "Job not found" });
@@ -110,7 +123,6 @@ exports.updateJob = async (req, res) => {
             return res.status(401).json({ message: "Not authorized to update this job" });
         }
 
-        // CHANGE 3: Pass 'id' to the updater as well
         const updatedJob = await Job.findByIdAndUpdate(id, req.body, { new: true });
         
         res.json({ message: "Job Updated Successfully!", updatedJob });

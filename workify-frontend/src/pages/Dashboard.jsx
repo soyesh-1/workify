@@ -19,6 +19,7 @@ const Dashboard = () => {
     const role = localStorage.getItem('role');
     const userId = localStorage.getItem('userId');
 
+    // 1. FETCH JOBS
     const fetchJobs = async () => {
         try {
             const res = await axios.get("http://localhost:5004/api/jobs/all");
@@ -41,16 +42,21 @@ const Dashboard = () => {
         fetchJobs();
     }, []);
 
+    // 2. OPEN MODAL
     const openApplyModal = (jobId) => {
         setSelectedJobId(jobId);
         setIsModalOpen(true);
-        setResumeFile(null); 
+        setResumeFile(null); // Reset file on open
     };
 
+    // 3. HANDLE FILE INPUT
     const handleFileChange = (e) => {
-        setResumeFile(e.target.files[0]);
+        if (e.target.files && e.target.files.length > 0) {
+            setResumeFile(e.target.files[0]);
+        }
     };
 
+    // 4. SUBMIT APPLICATION (The Critical Fix)
     const submitApplication = async () => {
         if (!resumeFile) {
             alert("Please select a PDF resume first.");
@@ -63,15 +69,18 @@ const Dashboard = () => {
             return navigate('/login');
         }
 
+        // Create FormData for file upload
         const formData = new FormData();
-        formData.append('userId', userId); 
+        // 'resume' must match the backend: upload.single('resume')
         formData.append('resume', resumeFile); 
+        // Optional: Send userId if backend needs it manually (though usually it comes from token)
+        formData.append('userId', userId);
 
         setUploading(true);
         try {
-            // Using your specific v1 application endpoint
+            // FIX: Updated URL to match your Route file (/api/jobs/apply/:jobId)
             await axios.post(
-                `http://localhost:5004/api/v1/application/post/${selectedJobId}`, 
+                `http://localhost:5004/api/jobs/apply/${selectedJobId}`, 
                 formData, 
                 {
                     headers: { 
@@ -83,33 +92,44 @@ const Dashboard = () => {
             
             alert("Application Submitted Successfully!");
             setIsModalOpen(false);
+            setResumeFile(null);
+            
+            // Refresh jobs to show 'Applied' status
             fetchJobs(); 
         } catch (error) {
-            alert(error.response?.data?.message || "Error uploading application");
+            console.error(error);
+            const msg = error.response?.data?.message || "Error uploading application";
+            alert(msg);
         } finally {
             setUploading(false);
         }
     };
 
+    // 5. DELETE JOB
     const handleDelete = async (jobId) => {
         if (window.confirm("Are you sure you want to delete this job?")) {
             try {
                 const token = localStorage.getItem('token');
+                // Ensure this URL matches your backend route for deletion
                 await axios.delete(`http://localhost:5004/api/jobs/delete/${jobId}`, {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
+                // Remove from state immediately
                 setJobs(jobs.filter(job => job._id !== jobId));
+                alert("Job deleted successfully");
             } catch (error) {
-                alert("Error deleting job");
+                console.error(error);
+                alert(error.response?.data?.message || "Error deleting job");
             }
         }
     };
 
+    // 6. FILTER LOGIC
     const filteredJobs = jobs.filter(job => {
-        const matchesTitle = job.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                             job.company?.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesLocation = job.location?.toLowerCase().includes(locationFilter.toLowerCase());
-        return matchesTitle && matchesLocation;
+        const titleMatch = job.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                           job.company?.toLowerCase().includes(searchTerm.toLowerCase());
+        const locationMatch = job.location?.toLowerCase().includes(locationFilter.toLowerCase());
+        return titleMatch && locationMatch;
     });
 
     const getInitials = (name) => name ? name.substring(0, 2).toUpperCase() : "JP";
@@ -176,6 +196,7 @@ const Dashboard = () => {
                 <div className="jobs-grid">
                     {filteredJobs.length > 0 ? (
                         filteredJobs.map((job) => {
+                            // Ensure applicants array exists
                             const applicants = job.applicants || [];
                             const hasApplied = applicants.includes(userId);
 
@@ -208,7 +229,7 @@ const Dashboard = () => {
                                     <div className="job-description">{job.description}</div>
 
                                     <div className="card-footer">
-                                        {role === 'seeker' ? (
+                                        {role !== 'recruiter' ? (
                                             <button 
                                                 className={`btn-primary ${hasApplied ? 'btn-applied' : 'btn-apply'}`}
                                                 onClick={() => !hasApplied && openApplyModal(job._id)}
@@ -246,7 +267,12 @@ const Dashboard = () => {
                         <h3>Apply for Job</h3>
                         <p>Please upload your resume to continue.</p>
                         <div className="file-input-wrapper">
-                            <input type="file" accept="application/pdf" className="file-input" onChange={handleFileChange} />
+                            <input 
+                                type="file" 
+                                accept="application/pdf" 
+                                className="file-input" 
+                                onChange={handleFileChange} 
+                            />
                             <p style={{fontSize: '0.8rem', marginTop:'5px'}}>Accepted formats: PDF only (Max 5MB)</p>
                         </div>
                         <div className="modal-actions">

@@ -4,8 +4,11 @@ const userSchema = new mongoose.Schema({
     username: { type: String, required: true },
     email:    { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    phone: { type: String },
-    resumePath: { type: String },
+    phone:    { type: String },
+    
+    // CHANGED: Renamed 'resumePath' to 'resume' to match the Controller logic
+    resume:   { type: String, default: "" }, 
+    
     role:     { type: String, enum: ['seeker', 'recruiter'], default: 'seeker' },
 }, { timestamps: true });
 
