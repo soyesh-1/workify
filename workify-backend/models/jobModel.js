@@ -8,8 +8,32 @@ const jobSchema = new mongoose.Schema({
     salary:      { type: String, required: true },
     requirements:{ type: [String], required: true }, 
     jobType:     { type: String, enum: ['Full-time', 'Part-time', 'Remote', 'Internship'], default: 'Full-time' },
+    
     postedBy:    { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    applicants:  [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] 
+    
+    // --- UPDATED SECTION ---
+    applicants:  [{ 
+        user: { 
+            type: mongoose.Schema.Types.ObjectId, 
+            ref: 'User',
+            required: true 
+        },
+        resume: { 
+            type: String, 
+            required: true // We store the specific resume path for this application
+        },
+        status: { 
+            type: String, 
+            enum: ['pending', 'shortlisted', 'rejected'], 
+            default: 'pending' // Default status is Pending
+        },
+        appliedAt: {
+            type: Date,
+            default: Date.now
+        }
+    }] 
+    // -----------------------
+
 }, { timestamps: true });
 
 module.exports = mongoose.model('Job', jobSchema);

@@ -6,6 +6,8 @@ import PostJob from './pages/PostJob';
 import JobApplicants from './pages/JobApplicants';
 import EditJob from './pages/EditJob';
 import UserProfile from './pages/UserProfile';
+import NotFound from './pages/NotFound'; // <--- 1. IMPORT THIS
+
 
 // The Security Guard: Prevents unauthorized access
 const ProtectedRoute = ({ children, allowedRole }) => {
@@ -30,12 +32,17 @@ function App() {
 
           {/* Secure Private Routes */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/profile" element={<UserProfile />} />
+          
+          {/* 2. PROTECT THE PROFILE ROUTE */}
+          <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
           
           {/* Secure Recruiter Only Routes */}
           <Route path="/post-job" element={<ProtectedRoute allowedRole="recruiter"><PostJob /></ProtectedRoute>} />
           <Route path="/job-applicants/:jobId" element={<ProtectedRoute allowedRole="recruiter"><JobApplicants /></ProtectedRoute>} />
           <Route path="/edit-job/:jobId" element={<ProtectedRoute allowedRole="recruiter"><EditJob /></ProtectedRoute>} />
+
+          {/* 3. CATCH-ALL 404 ROUTE (Must be at the bottom) */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
     </Router>

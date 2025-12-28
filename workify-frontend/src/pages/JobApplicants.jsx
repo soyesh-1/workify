@@ -2,15 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
-import '../css/Dashboard.css';
+import '../css/JobApplicants.css'; // Make sure you created this CSS file in the previous step!
 
 const JobApplicants = () => {
     const { jobId } = useParams();
     const navigate = useNavigate();
-    const [applicants, setApplicants] = useState([]); 
-    const [jobTitle, setJobTitle] = useState("");
+    const [applicants, setApplicants] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // 1. Fetch Applicants
     useEffect(() => {
         const fetchApplicants = async () => {
             try {
@@ -19,12 +19,8 @@ const JobApplicants = () => {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 
-                if (res.data && res.data.applicants) {
-                    setApplicants(res.data.applicants);
-                } else {
-                    setApplicants([]);
-                }
-                setJobTitle(res.data.title || "Position");
+                // Backend now returns the array directly
+                setApplicants(res.data);
             } catch (error) {
                 console.error("Error fetching applicants", error);
                 setApplicants([]);
@@ -35,80 +31,130 @@ const JobApplicants = () => {
         fetchApplicants();
     }, [jobId]);
 
-    // 1. UPDATE: Function to handle CV download
-    const handleDownloadCV = (cvPath) => {
-        if (!cvPath) {
-            alert("CV not provided by this candidate");
-            return;
+    // 2. Handle Status Update (Shortlist / Reject)
+    const handleStatusUpdate = async (applicantId, newStatus) => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.put(
+                `http://localhost:5004/api/jobs/status/${jobId}/${applicantId}`,
+                { status: newStatus },
+                { headers: { "Authorization": `Bearer ${token}` } }
+            );
+
+            // Update UI locally (Optimistic update)
+            setApplicants(prev => prev.map(app => 
+                app.user._id === applicantId ? { ...app, status: newStatus } : app
+            ));
+
+            alert(`Candidate marked as ${newStatus}`);
+        } catch (error) {
+            console.error("Error updating status:", error);
+            alert("Failed to update status");
         }
-        // Open the file in a new tab
-        // Assuming your backend runs on port 5004
-        window.open(`http://localhost:5004/${cvPath}`, '_blank');
+    };
+
+    // 3. Helper for Status Colors
+    const getStatusClass = (status) => {
+        switch(status) {
+            case 'shortlisted': return 'badge-success';
+            case 'rejected': return 'badge-danger';
+            default: return 'badge-warning';
+        }
     };
 
     return (
         <div className="dashboard-container">
             <Navbar />
-            <div className="content-area">
-                <div className="dashboard-top-bar">
-                    <div>
-                        <button className="btn-outline" onClick={() => navigate('/dashboard')} style={{marginBottom: '10px', padding: '5px 15px'}}>
-                            ← Back to Dashboard
-                        </button>
-                        <h2 className="section-title">Applicants for <span className="teal-text">{jobTitle}</span></h2>
-                        <p>You have {applicants.length} total candidates for this position.</p>
-                    </div>
+            <div className="applicants-container">
+                {/* Header Section */}
+                <div className="applicants-header">
+                    <button className="back-btn" onClick={() => navigate('/dashboard')}>
+                        ← Back to Dashboard
+                    </button>
+                    <h2>Applicant Management</h2>
                 </div>
 
                 {loading ? (
-                    <div className="loader-wrapper"><div className="spinner"></div></div>
+                    <div style={{textAlign: 'center', marginTop: '50px'}}>Loading candidates...</div>
+                ) : applicants.length === 0 ? (
+                    <div className="empty-state">
+                        <p>No candidates have applied for this position yet.</p>
+                    </div>
                 ) : (
-                    <div className="applicants-list-container">
-                        {applicants.length > 0 ? (
-                            <table className="applicants-table">
-                                <thead>
-                                    <tr>
-                                        <th>Candidate Name</th>
-                                        <th>Email Address</th>
-                                        <th>Phone Number</th>
-                                        <th>Applied Date</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {applicants.map((app) => (
-                                        <tr key={app._id} className="applicant-row">
-                                            <td>
-                                                <div className="user-info-cell">
-                                                    <div className="user-avatar">{app.username.charAt(0).toUpperCase()}</div>
-                                                    <span>{app.username}</span>
+                    <div className="applicants-table-wrapper">
+                        <table className="applicants-table">
+                            <thead>
+                                <tr>
+                                    <th>Candidate</th>
+                                    <th>Applied On</th>
+                                    <th>Resume</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {applicants.map((app) => (
+                                    <tr key={app._id}>
+                                        {/* CANDIDATE INFO (Nested in app.user) */}
+                                        <td>
+                                            <div className="candidate-info">
+                                                <div className="candidate-avatar">
+                                                    {app.user.username.charAt(0).toUpperCase()}
                                                 </div>
-                                            </td>
-                                            <td>{app.email}</td>
-                                            <td>{app.phone || "N/A"}</td>
-                                            <td>{app.appliedDate ? new Date(app.appliedDate).toLocaleDateString() : "Recently"}</td>
-                                            <td className="action-cell">
-                                                {/* 2. UPDATE: Pass 'app.resume' instead of 'app.resumePath' */}
+                                                <div>
+                                                    <div className="candidate-name">{app.user.username}</div>
+                                                    <div className="candidate-email">{app.user.email}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        {/* DATE */}
+                                        <td>{new Date(app.appliedAt).toLocaleDateString()}</td>
+
+                                        {/* RESUME LINK */}
+                                        <td>
+                                            <a 
+                                                href={`http://localhost:5004/${app.resume}`} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="resume-link"
+                                            >
+                                                View CV ↗
+                                            </a>
+                                        </td>
+
+                                        {/* STATUS BADGE */}
+                                        <td>
+                                            <span className={`status-badge ${getStatusClass(app.status)}`}>
+                                                {app.status.toUpperCase()}
+                                            </span>
+                                        </td>
+
+                                        {/* ACTION BUTTONS */}
+                                        <td>
+                                            <div className="action-buttons">
                                                 <button 
-                                                    className="btn-primary btn-apply" 
-                                                    style={{fontSize: '0.8rem', padding: '8px 12px'}}
-                                                    onClick={() => handleDownloadCV(app.resume)} 
+                                                    className="btn-icon btn-accept"
+                                                    title="Shortlist"
+                                                    onClick={() => handleStatusUpdate(app.user._id, 'shortlisted')}
+                                                    disabled={app.status === 'shortlisted'}
                                                 >
-                                                    View CV
+                                                    ✓
                                                 </button>
-                                                <a href={`mailto:${app.email}`} className="email-link-icon" title="Send Email">
-                                                    ✉️
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        ) : (
-                            <div className="no-data-msg">
-                                <p>No candidates have applied for this position yet.</p>
-                            </div>
-                        )}
+                                                <button 
+                                                    className="btn-icon btn-reject"
+                                                    title="Reject"
+                                                    onClick={() => handleStatusUpdate(app.user._id, 'rejected')}
+                                                    disabled={app.status === 'rejected'}
+                                                >
+                                                    ✕
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 )}
             </div>

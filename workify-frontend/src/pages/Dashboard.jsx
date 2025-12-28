@@ -24,7 +24,6 @@ const Dashboard = () => {
         try {
             const res = await axios.get("http://localhost:5004/api/jobs/all");
             
-            // Handle different response structures from backend
             if (res.data.jobs) {
                 setJobs(res.data.jobs);
             } else if (Array.isArray(res.data)) {
@@ -42,21 +41,19 @@ const Dashboard = () => {
         fetchJobs();
     }, []);
 
-    // 2. OPEN MODAL
+    // 2. ACTIONS
     const openApplyModal = (jobId) => {
         setSelectedJobId(jobId);
         setIsModalOpen(true);
-        setResumeFile(null); // Reset file on open
+        setResumeFile(null); 
     };
 
-    // 3. HANDLE FILE INPUT
     const handleFileChange = (e) => {
         if (e.target.files && e.target.files.length > 0) {
             setResumeFile(e.target.files[0]);
         }
     };
 
-    // 4. SUBMIT APPLICATION (The Critical Fix)
     const submitApplication = async () => {
         if (!resumeFile) {
             alert("Please select a PDF resume first.");
@@ -69,16 +66,12 @@ const Dashboard = () => {
             return navigate('/login');
         }
 
-        // Create FormData for file upload
         const formData = new FormData();
-        // 'resume' must match the backend: upload.single('resume')
         formData.append('resume', resumeFile); 
-        // Optional: Send userId if backend needs it manually (though usually it comes from token)
         formData.append('userId', userId);
 
         setUploading(true);
         try {
-            // FIX: Updated URL to match your Route file (/api/jobs/apply/:jobId)
             await axios.post(
                 `http://localhost:5004/api/jobs/apply/${selectedJobId}`, 
                 formData, 
@@ -93,11 +86,8 @@ const Dashboard = () => {
             alert("Application Submitted Successfully!");
             setIsModalOpen(false);
             setResumeFile(null);
-            
-            // Refresh jobs to show 'Applied' status
             fetchJobs(); 
         } catch (error) {
-            console.error(error);
             const msg = error.response?.data?.message || "Error uploading application";
             alert(msg);
         } finally {
@@ -105,26 +95,37 @@ const Dashboard = () => {
         }
     };
 
-    // 5. DELETE JOB
+    const handleWithdraw = async (jobId) => {
+        if (window.confirm("Are you sure you want to withdraw your application?")) {
+            try {
+                const token = localStorage.getItem('token');
+                await axios.put(`http://localhost:5004/api/jobs/withdraw/${jobId}`, {}, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                alert("Application Withdrawn");
+                fetchJobs();
+            } catch (error) {
+                alert(error.response?.data?.message || "Error withdrawing application");
+            }
+        }
+    };
+
     const handleDelete = async (jobId) => {
         if (window.confirm("Are you sure you want to delete this job?")) {
             try {
                 const token = localStorage.getItem('token');
-                // Ensure this URL matches your backend route for deletion
                 await axios.delete(`http://localhost:5004/api/jobs/delete/${jobId}`, {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
-                // Remove from state immediately
                 setJobs(jobs.filter(job => job._id !== jobId));
                 alert("Job deleted successfully");
             } catch (error) {
-                console.error(error);
                 alert(error.response?.data?.message || "Error deleting job");
             }
         }
     };
 
-    // 6. FILTER LOGIC
+    // 3. FILTER LOGIC
     const filteredJobs = jobs.filter(job => {
         const titleMatch = job.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
                            job.company?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -134,6 +135,32 @@ const Dashboard = () => {
 
     const getInitials = (name) => name ? name.substring(0, 2).toUpperCase() : "JP";
 
+    // --- NEW: Helper for Status Badge (For Job Seekers) ---
+    const getStatusBadge = (status) => {
+        const styles = {
+            pending: { background: '#fef3c7', color: '#d97706', label: 'Pending' },
+            shortlisted: { background: '#d1fae5', color: '#059669', label: 'Shortlisted' },
+            rejected: { background: '#fee2e2', color: '#dc2626', label: 'Rejected' }
+        };
+        const s = styles[status] || styles.pending;
+        
+        return (
+            <span style={{
+                fontSize: '0.75rem',
+                fontWeight: '700',
+                padding: '4px 8px',
+                borderRadius: '4px',
+                backgroundColor: s.background,
+                color: s.color,
+                marginLeft: '10px',
+                textTransform: 'uppercase',
+                display: 'inline-block'
+            }}>
+                {s.label}
+            </span>
+        );
+    };
+
     return (
         <div>
             <Navbar />
@@ -141,7 +168,7 @@ const Dashboard = () => {
                 {/* HERO HEADER */}
                 <div className="dashboard-header">
                     <div className="header-content">
-                        <h1>Hello, <span style={{ color: '#fef08a' }}>{role === 'recruiter' ? 'Recruiter' : 'Job Seeker'}</span></h1>
+                        <h1>Hello, <span className="text-highlight">{role === 'recruiter' ? 'Recruiter' : 'Job Seeker'}</span></h1>
                         <p>Find the perfect job that matches your skills and passion.</p>
                     </div>
                     <div className="stats-row">
@@ -162,7 +189,7 @@ const Dashboard = () => {
 
                 {/* SEARCH BAR */}
                 <div className="search-container">
-                    <svg style={{marginLeft:'15px', color:'#9ca3af'}} xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <svg className="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
                     </svg>
                     <input 
@@ -172,7 +199,7 @@ const Dashboard = () => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
-                    <div style={{width:'1px', height:'30px', background:'#e5e7eb'}}></div>
+                    <div className="search-divider"></div>
                     <input 
                         type="text" 
                         placeholder="City or zip code" 
@@ -183,9 +210,10 @@ const Dashboard = () => {
                     <button className="btn-primary btn-apply search-btn-width">Search</button>
                 </div>
 
+                {/* RECRUITER POST BUTTON */}
                 {role === 'recruiter' && (
-                    <div style={{display:'flex', justifyContent:'flex-end', marginBottom:'20px'}}>
-                        <button onClick={() => navigate('/post-job')} className="btn-primary btn-apply" style={{width:'auto'}}>
+                    <div className="post-job-container">
+                        <button onClick={() => navigate('/post-job')} className="btn-primary btn-apply btn-auto-width">
                             + Post New Job
                         </button>
                     </div>
@@ -196,17 +224,28 @@ const Dashboard = () => {
                 <div className="jobs-grid">
                     {filteredJobs.length > 0 ? (
                         filteredJobs.map((job) => {
-                            // Ensure applicants array exists
                             const applicants = job.applicants || [];
-                            const hasApplied = applicants.includes(userId);
+                            
+                            // --- NEW LOGIC: FIND MY APPLICATION OBJECT ---
+                            // Since applicants is now an array of objects { user, status, resume }
+                            // We use .find() to see if the current userId exists in any of those objects
+                            const myApplication = applicants.find(app => app.user === userId);
+                            const hasApplied = !!myApplication; // true if found
+                            const myStatus = myApplication ? myApplication.status : null;
 
                             return (
                                 <div key={job._id} className="job-card">
                                     <div className="card-header">
                                         <div className="company-logo">{getInitials(job.company)}</div>
-                                        <svg className="bookmark-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                                            <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
-                                        </svg>
+                                        
+                                        {/* If User Applied, show Status Badge instead of bookmark */}
+                                        {hasApplied && role === 'seeker' ? (
+                                            getStatusBadge(myStatus)
+                                        ) : (
+                                            <svg className="bookmark-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                                <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
+                                            </svg>
+                                        )}
                                     </div>
                                     <h3 className="job-title">{job.title}</h3>
                                     <div className="company-name">{job.company}</div>
@@ -230,13 +269,24 @@ const Dashboard = () => {
 
                                     <div className="card-footer">
                                         {role !== 'recruiter' ? (
-                                            <button 
-                                                className={`btn-primary ${hasApplied ? 'btn-applied' : 'btn-apply'}`}
-                                                onClick={() => !hasApplied && openApplyModal(job._id)}
-                                                disabled={hasApplied}
-                                            >
-                                                {hasApplied ? "Applied" : "Apply Now"}
-                                            </button>
+                                            hasApplied ? (
+                                                <button 
+                                                    className="btn-primary btn-withdraw" 
+                                                    onClick={() => handleWithdraw(job._id)}
+                                                    // Disable withdrawal if decision is already made
+                                                    disabled={myStatus === 'shortlisted' || myStatus === 'rejected'}
+                                                    style={ (myStatus === 'shortlisted' || myStatus === 'rejected') ? {opacity: 0.5, cursor: 'not-allowed'} : {}}
+                                                >
+                                                    {myStatus === 'pending' ? 'Withdraw Application' : `Application ${myStatus}`}
+                                                </button>
+                                            ) : (
+                                                <button 
+                                                    className="btn-primary btn-apply"
+                                                    onClick={() => openApplyModal(job._id)}
+                                                >
+                                                    Apply Now
+                                                </button>
+                                            )
                                         ) : (
                                             <>
                                                 <button className="btn-primary btn-outline" onClick={() => navigate(`/job-applicants/${job._id}`)}>
@@ -255,7 +305,7 @@ const Dashboard = () => {
                             );
                         })
                     ) : (
-                        <p style={{textAlign:'center', gridColumn:'1 / -1', padding:'20px'}}>No jobs found.</p>
+                        <p className="no-jobs-message">No jobs found.</p>
                     )}
                 </div>
             </div>
@@ -273,7 +323,7 @@ const Dashboard = () => {
                                 className="file-input" 
                                 onChange={handleFileChange} 
                             />
-                            <p style={{fontSize: '0.8rem', marginTop:'5px'}}>Accepted formats: PDF only (Max 5MB)</p>
+                            <p className="file-hint">Accepted formats: PDF only (Max 5MB)</p>
                         </div>
                         <div className="modal-actions">
                             <button className="btn-cancel" onClick={() => setIsModalOpen(false)}>Cancel</button>

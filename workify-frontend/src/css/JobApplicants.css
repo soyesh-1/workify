@@ -1,0 +1,179 @@
+/* Container */
+.applicants-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+/* Header */
+.applicants-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.back-btn:hover {
+    color: #14b8a6;
+}
+
+/* Table Wrapper */
+.applicants-table-wrapper {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    overflow: hidden;
+    border: 1px solid #eee;
+}
+
+.applicants-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.applicants-table th {
+    text-align: left;
+    background-color: #f9fafb;
+    padding: 15px 20px;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 1px solid #eee;
+}
+
+.applicants-table td {
+    padding: 15px 20px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+}
+
+/* Candidate Info */
+.candidate-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.candidate-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #e0f2fe;
+    color: #0369a1;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
+.candidate-name {
+    font-weight: 600;
+    color: #111;
+}
+
+.candidate-email {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+/* Resume Link */
+.resume-link {
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 5px 10px;
+    background-color: #eff6ff;
+    border-radius: 4px;
+}
+
+.resume-link:hover {
+    background-color: #dbeafe;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.badge-warning {
+    background-color: #fef3c7;
+    color: #d97706; /* Yellow/Orange for Pending */
+}
+
+.badge-success {
+    background-color: #d1fae5;
+    color: #059669; /* Green for Shortlisted */
+}
+
+.badge-danger {
+    background-color: #fee2e2;
+    color: #dc2626; /* Red for Rejected */
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-size: 1rem;
+}
+
+.btn-accept {
+    background-color: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
+}
+
+.btn-accept:hover {
+    background-color: #059669;
+    color: white;
+}
+
+.btn-reject {
+    background-color: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+.btn-reject:hover {
+    background-color: #dc2626;
+    color: white;
+}
+
+.btn-icon:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    filter: grayscale(100%);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    background: #f9f9f9;
+    border-radius: 8px;
+}

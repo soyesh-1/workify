@@ -4,14 +4,16 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// 1. IMPORT Controller Functions (Added deleteJob)
+// 1. IMPORT Controller Functions
 const { 
     postJob, 
     getAllJobs, 
     applyForJob, 
     getJobApplicants,
     updateJob,
-    deleteJob // <--- ADD THIS
+    deleteJob,
+    withdrawApplication,
+    updateApplicantStatus // <--- ADD THIS IMPORT
 } = require('../controllers/jobController');
 
 const { protect } = require('../middleware/authMiddleware');
@@ -27,10 +29,9 @@ if (!fs.existsSync(uploadDir)){
 // Configure Storage
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, uploadDir); // Files will be saved in 'uploads' folder
+        cb(null, uploadDir); 
     },
     filename: function (req, file, cb) {
-        // Naming format: resume-jobId-userId-timestamp.pdf
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
     }
@@ -48,7 +49,7 @@ const fileFilter = (req, file, cb) => {
 // Initialize Upload Middleware (Max size 5MB)
 const upload = multer({ 
     storage: storage,
-    limits: { fileSize: 1024 * 1024 * 5 }, // 5MB limit
+    limits: { fileSize: 1024 * 1024 * 5 }, 
     fileFilter: fileFilter
 });
 
@@ -61,14 +62,19 @@ router.get('/all', getAllJobs);
 // Protected: Post a job
 router.post('/post', protect, postJob);
 
-// Protected: Update a job (Matches /api/jobs/update/:id)
+// Protected: Update a job
 router.put('/update/:id', protect, updateJob); 
 
-// Protected: Delete a job (Matches /api/jobs/delete/:jobId)
-router.delete('/delete/:jobId', protect, deleteJob); // <--- ADD THIS ROUTE
+// Protected: Delete a job
+router.delete('/delete/:jobId', protect, deleteJob);
 
-// Protected: Apply for a job (NOW WITH FILE UPLOAD)
-// 'resume' must match the formData.append('resume', file) in your React code
+// Protected: Withdraw Application
+router.put('/withdraw/:jobId', protect, withdrawApplication);
+
+// Protected: Update Applicant Status (Shortlist/Reject) -- NEW ROUTE
+router.put('/status/:jobId/:applicantId', protect, updateApplicantStatus);
+
+// Protected: Apply for a job
 router.post('/apply/:jobId', protect, upload.single('resume'), applyForJob);
 
 // Protected: View Applicants
