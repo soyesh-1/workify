@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import PostJob from './pages/PostJob';
 import JobApplicants from './pages/JobApplicants';
 import EditJob from './pages/EditJob';
+import UserProfile from './pages/UserProfile';
 
 // The Security Guard: Prevents unauthorized access
 const ProtectedRoute = ({ children, allowedRole }) => {
@@ -29,6 +30,7 @@ function App() {
 
           {/* Secure Private Routes */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/profile" element={<UserProfile />} />
           
           {/* Secure Recruiter Only Routes */}
           <Route path="/post-job" element={<ProtectedRoute allowedRole="recruiter"><PostJob /></ProtectedRoute>} />

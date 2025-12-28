@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../css/Navbar.css';
 
@@ -6,6 +6,7 @@ const Navbar = () => {
     const navigate = useNavigate();
     const isLoggedIn = !!localStorage.getItem('token');
     const role = localStorage.getItem('role');
+    const [showDropdown, setShowDropdown] = useState(false);
 
     const handleLogout = () => {
         localStorage.clear();
@@ -14,20 +15,15 @@ const Navbar = () => {
 
     return (
         <nav className="navbar">
-            {/* Logo: Points to Dashboard if logged in, otherwise Login */}
             <Link to={isLoggedIn ? "/dashboard" : "/login"} className="navbar-brand">Workify</Link>
             
-            {/* Links */}
             <div className="navbar-center">
-                {/* 1. FIX: Home Button Logic */}
                 <Link to={isLoggedIn ? "/dashboard" : "/login"} className="nav-link">Home</Link>
-                
-                <span className="nav-link dropdown-indicator">Browse Jobs</span>
+                <Link to="/browse-jobs" className="nav-link">Browse Jobs</Link>
                 <span className="nav-link">Training</span>
                 <span className="nav-link">About</span>
             </div>
 
-            {/* Buttons */}
             <div className="navbar-auth">
                 {isLoggedIn ? (
                     <>
@@ -36,7 +32,38 @@ const Navbar = () => {
                                 + Post Job
                             </Link>
                         )}
-                        <button onClick={handleLogout} className="nav-btn btn-logout">Logout</button>
+
+                        {/* --- DROPDOWN CONTAINER --- */}
+                        <div className="navbar-dropdown-container">
+                            <button 
+                                onClick={() => setShowDropdown(!showDropdown)}
+                                className="btn-account"
+                            >
+                                👤 Account ▼
+                            </button>
+
+                            {showDropdown && (
+                                <div className="dropdown-menu">
+                                    <Link 
+                                        to="/profile" 
+                                        className="dropdown-item"
+                                        onClick={() => setShowDropdown(false)}
+                                    >
+                                        My Profile
+                                    </Link>
+                                    
+                                    <div className="dropdown-divider"></div>
+                                    
+                                    <button 
+                                        onClick={handleLogout} 
+                                        className="btn-logout-dropdown"
+                                    >
+                                        Logout
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                        {/* --------------------------- */}
                     </>
                 ) : (
                     <>

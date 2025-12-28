@@ -16,7 +16,7 @@
 .navbar-brand {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #14b8a6; /* Updated to Teal for branding consistency */
+    color: #14b8a6; /* Teal branding */
     text-decoration: none;
     margin-right: auto; 
 }
@@ -39,7 +39,7 @@
     transition: color 0.2s;
 }
 
-/* Forces ALL nav links (including Post Job) to hover Teal */
+/* Forces ALL nav links to hover Teal */
 .nav-link:hover {
     color: #14b8a6 !important; 
 }
@@ -72,7 +72,7 @@
 }
 
 .btn-signup:hover {
-    background-color: #0d9488; /* Darker Teal instead of Blue */
+    background-color: #0d9488; /* Darker Teal */
     border-color: #0d9488;
 }
 
@@ -85,11 +85,11 @@
 
 .btn-login:hover {
     background-color: #f9f9f9;
-    border-color: #14b8a6; /* Updated border to Teal on hover */
+    border-color: #14b8a6; 
     color: #14b8a6;
 }
 
-/* LOGOUT BUTTON */
+/* LOGOUT BUTTON (Standard) */
 .btn-logout {
     background-color: white;
     color: #14b8a6; 
@@ -104,4 +104,99 @@
     background-color: #dc3545; /* Red Warning */
     color: white;
     border-color: #dc3545;
+}
+
+
+/* =========================================
+   NEW DROPDOWN MENU STYLES
+   ========================================= */
+
+/* Wrapper for positioning */
+.navbar-dropdown-container {
+    position: relative;
+    display: inline-block;
+    margin-left: 15px;
+}
+
+/* The 'Account' Toggle Button */
+.btn-account {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 1rem;
+    color: #333;
+    font-weight: 500;
+    padding: 5px 10px;
+    transition: color 0.2s;
+}
+
+.btn-account:hover {
+    color: #14b8a6; /* Matches your Teal brand */
+}
+
+/* The Dropdown Box */
+.dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: 50px; /* Pushes it slightly below the navbar */
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 4px; /* Matches your sharp aesthetic slightly better than 8px */
+    padding: 10px;
+    width: 160px;
+    z-index: 1000;
+    border: 1px solid #f0f0f0;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+/* Links inside the dropdown */
+.dropdown-item {
+    display: block;
+    padding: 10px 12px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 2px;
+    transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: #f0fdfa; /* Very light teal bg */
+    color: #14b8a6; /* Teal text */
+}
+
+/* Divider Line */
+.dropdown-divider {
+    border-top: 1px solid #eee;
+    margin: 5px 0;
+}
+
+/* Logout Button INSIDE Dropdown */
+.btn-logout-dropdown {
+    width: 100%;
+    text-align: left;
+    background-color: #fee2e2; /* Light red bg */
+    color: #dc3545; /* Red text */
+    border: none;
+    padding: 10px 12px;
+    border-radius: 2px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 5px;
+}
+
+.btn-logout-dropdown:hover {
+    background-color: #fecaca; /* Darker red on hover */
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
 }

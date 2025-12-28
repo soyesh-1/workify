@@ -4,13 +4,14 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// 1. IMPORT Controller Functions
+// 1. IMPORT Controller Functions (Added deleteJob)
 const { 
     postJob, 
     getAllJobs, 
     applyForJob, 
     getJobApplicants,
-    updateJob 
+    updateJob,
+    deleteJob // <--- ADD THIS
 } = require('../controllers/jobController');
 
 const { protect } = require('../middleware/authMiddleware');
@@ -62,6 +63,9 @@ router.post('/post', protect, postJob);
 
 // Protected: Update a job (Matches /api/jobs/update/:id)
 router.put('/update/:id', protect, updateJob); 
+
+// Protected: Delete a job (Matches /api/jobs/delete/:jobId)
+router.delete('/delete/:jobId', protect, deleteJob); // <--- ADD THIS ROUTE
 
 // Protected: Apply for a job (NOW WITH FILE UPLOAD)
 // 'resume' must match the formData.append('resume', file) in your React code

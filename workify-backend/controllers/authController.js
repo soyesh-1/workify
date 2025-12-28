@@ -73,3 +73,20 @@ exports.loginUser = async (req, res) => {
         res.status(500).json({ message: "Error logging in", error: error.message });
     }
 };
+
+// Get User Profile
+exports.getUserProfile = async (req, res) => {
+    try {
+        // req.user.id comes from the 'protect' middleware
+        // .select('-password') means "give me everything BUT the password"
+        const user = await User.findById(req.user.id).select('-password');
+        
+        if (user) {
+            res.json(user);
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error', error: error.message });
+    }
+};
