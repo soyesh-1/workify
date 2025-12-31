@@ -212,3 +212,92 @@
 .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
 .btn-cancel { flex: 1; padding: 10px; border: 1px solid #e2e8f0; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; }
 .btn-submit { flex: 1; padding: 10px; background: #14b8a6; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+
+
+/* --- BACK BUTTON (MATCHING APPLY BUTTON STYLE) --- */
+.back-nav-wrapper {
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.btn-back-dashboard {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    
+    /* Solid Teal Style (Like Apply Button) */
+    background-color: #14b8a6; 
+    color: white;
+    
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 12px 24px; /* Nice button padding */
+    border-radius: 8px;
+    border: none;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 6px rgba(20, 184, 166, 0.2); /* Teal shadow */
+}
+
+.btn-back-dashboard:hover {
+    background-color: #0d9488; /* Darker teal on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(20, 184, 166, 0.3);
+    color: white;
+}
+
+.btn-back-dashboard svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* --- JOB DETAILS MODAL --- */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.6); /* Dark dim background */
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.job-modal-content {
+    background: white;
+    width: 90%;
+    max-width: 600px;
+    max-height: 85vh; /* Prevents it from being too tall */
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    overflow-y: auto; /* Allows scrolling inside the modal */
+    position: relative;
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px;
+}
+
+.modal-title h2 { margin: 0; font-size: 1.5rem; color: #0f172a; }
+.modal-title .company { color: #64748b; font-weight: 500; font-size: 1rem; margin-top: 5px; }
+
+.btn-close-modal {
+    background: #f1f5f9; border: none; width: 32px; height: 32px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: #64748b; transition: all 0.2s;
+}
+.btn-close-modal:hover { background: #e2e8f0; color: #ef4444; }
+
+.modal-body h4 { margin: 20px 0 10px 0; color: #334155; font-size: 1.1rem; }
+.modal-body p { color: #475569; line-height: 1.6; font-size: 0.95rem; }
+
+.modal-req-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
