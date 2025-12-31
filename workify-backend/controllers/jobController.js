@@ -1,10 +1,38 @@
 const Job = require('../models/jobModel');
 const User = require('../models/userModel'); 
 
-// 1. POST A JOB
+// 1. POST A JOB (Robust & Debug Version)
 exports.postJob = async (req, res) => {
     try {
-        const { title, company, location, description, salary, requirements, jobType } = req.body;
+        console.log("📥 Receiving Job Post Request...");
+        console.log("📋 Body:", req.body); // See exactly what text data arrived
+        console.log("📁 File:", req.file); // See if the logo arrived
+
+        // Destructure and provide default empty strings to prevent crashes
+        const { 
+            title, 
+            company, 
+            location, 
+            description, 
+            salary, 
+            requirements = "", // Default to empty string if missing
+            jobType 
+        } = req.body;
+
+        // SAFE Requirements Handling
+        // Even if requirements is undefined, the default above saves us.
+        let reqArray = [];
+        if (typeof requirements === 'string') {
+            reqArray = requirements.split(',').map(r => r.trim()).filter(r => r !== "");
+        } else if (Array.isArray(requirements)) {
+            reqArray = requirements;
+        }
+
+        // Validate Required Fields Manually (to give better error messages)
+        if (!title || !company || !location || !description || !salary) {
+            console.log("❌ Missing Required Fields");
+            return res.status(400).json({ message: "Please fill in all required fields." });
+        }
 
         const job = await Job.create({
             title,
@@ -12,14 +40,17 @@ exports.postJob = async (req, res) => {
             location,
             description,
             salary,
-            // Handle comma-separated requirements if sent as string, else use as is
-            requirements: typeof requirements === 'string' ? requirements.split(',') : requirements,
+            requirements: reqArray,
             jobType,
-            postedBy: req.user.id 
+            postedBy: req.user.id,
+            logo: req.file ? req.file.path : null 
         });
 
+        console.log("✅ Job Created Successfully:", job._id);
         res.status(201).json({ message: "Job Posted Successfully!", job });
+
     } catch (error) {
+        console.error("❌ BACKEND CRASH:", error); // This prints the REAL error in your terminal
         res.status(500).json({ message: "Error posting job", error: error.message });
     }
 };
@@ -28,7 +59,7 @@ exports.postJob = async (req, res) => {
 exports.getAllJobs = async (req, res) => {
     try {
         const jobs = await Job.find().sort({ createdAt: -1 }).populate('postedBy', 'username email');
-        res.json({ jobs }); // Wrap in object to match your frontend expectation
+        res.json({ jobs }); 
     } catch (error) {
         res.status(500).json({ message: "Error fetching jobs", error: error.message });
     }
@@ -48,7 +79,7 @@ exports.applyForJob = async (req, res) => {
         const job = await Job.findById(jobId);
         if (!job) return res.status(404).json({ message: "Job not found" });
 
-        // Check if already applied (Updated for Object structure)
+        // Check if already applied
         const alreadyApplied = job.applicants.find(
             app => app.user.toString() === userId
         );
@@ -72,22 +103,20 @@ exports.applyForJob = async (req, res) => {
     }
 };
 
-// 4. GET APPLICANTS (FIXED POPULATE)
+// 4. GET APPLICANTS
 exports.getJobApplicants = async (req, res) => {
     try {
         const { jobId } = req.params;
         
-        // FIX: Populate 'applicants.user' because applicants is now an array of objects
         const job = await Job.findById(jobId).populate('applicants.user', 'username email');
         
         if (!job) return res.status(404).json({ message: "Job not found" });
 
-        // Security check
         if (job.postedBy.toString() !== req.user.id) {
             return res.status(401).json({ message: "Not authorized" });
         }
 
-        res.status(200).json(job.applicants); // Send the array directly
+        res.status(200).json(job.applicants); 
     } catch (error) {
         res.status(500).json({ message: "Error fetching applicants", error: error.message });
     }
@@ -133,7 +162,7 @@ exports.updateJob = async (req, res) => {
     }
 };
 
-// 7. WITHDRAW APPLICATION (FIXED LOGIC)
+// 7. WITHDRAW APPLICATION
 exports.withdrawApplication = async (req, res) => {
     try {
         const { jobId } = req.params;
@@ -142,7 +171,6 @@ exports.withdrawApplication = async (req, res) => {
         const job = await Job.findById(jobId);
         if (!job) return res.status(404).json({ message: "Job not found" });
 
-        // Find index of the application
         const appIndex = job.applicants.findIndex(
             app => app.user.toString() === userId
         );
@@ -151,7 +179,6 @@ exports.withdrawApplication = async (req, res) => {
             return res.status(400).json({ message: "You have not applied for this job" });
         }
 
-        // Remove from array using splice
         job.applicants.splice(appIndex, 1);
         await job.save();
 
@@ -161,11 +188,11 @@ exports.withdrawApplication = async (req, res) => {
     }
 };
 
-// 8. UPDATE APPLICANT STATUS (NEW FUNCTION)
+// 8. UPDATE APPLICANT STATUS
 exports.updateApplicantStatus = async (req, res) => {
     try {
         const { jobId, applicantId } = req.params;
-        const { status } = req.body; // 'shortlisted' or 'rejected'
+        const { status } = req.body; 
 
         const job = await Job.findById(jobId);
         if (!job) return res.status(404).json({ message: "Job not found" });

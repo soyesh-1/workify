@@ -20,6 +20,13 @@ const Navbar = () => {
             <div className="navbar-center">
                 <Link to={isLoggedIn ? "/dashboard" : "/login"} className="nav-link">Home</Link>
                 <Link to="/browse-jobs" className="nav-link">Browse Jobs</Link>
+
+                {/* --- NEW: Show 'Saved Jobs' only for Seekers --- */}
+                {isLoggedIn && role === 'seeker' && (
+                    <Link to="/saved-jobs" className="nav-link">Saved Jobs</Link>
+                )}
+                {/* ---------------------------------------------- */}
+
                 <span className="nav-link">Training</span>
                 <span className="nav-link">About</span>
             </div>

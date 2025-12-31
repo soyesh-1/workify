@@ -7,6 +7,7 @@ import '../css/Dashboard.css';
 const Dashboard = () => {
     const navigate = useNavigate();
     const [jobs, setJobs] = useState([]);
+    const [savedJobIds, setSavedJobIds] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [locationFilter, setLocationFilter] = useState('');
 
@@ -18,30 +19,59 @@ const Dashboard = () => {
 
     const role = localStorage.getItem('role');
     const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('token');
 
-    // 1. FETCH JOBS
-    const fetchJobs = async () => {
-        try {
-            const res = await axios.get("http://localhost:5004/api/jobs/all");
-            
-            if (res.data.jobs) {
-                setJobs(res.data.jobs);
-            } else if (Array.isArray(res.data)) {
-                setJobs(res.data);
-            } else {
-                setJobs([]);
+    // 1. FETCH JOBS & SAVED JOBS
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // Fetch All Jobs
+                const jobsRes = await axios.get("http://localhost:5004/api/jobs/all");
+                if (jobsRes.data.jobs) {
+                    setJobs(jobsRes.data.jobs);
+                } else if (Array.isArray(jobsRes.data)) {
+                    setJobs(jobsRes.data);
+                } else {
+                    setJobs([]);
+                }
+
+                // Fetch User Profile to get Saved Jobs (If logged in)
+                if (token && role === 'seeker') {
+                    const userRes = await axios.get("http://localhost:5004/api/auth/profile", {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    const ids = userRes.data.savedJobs.map(job => job._id);
+                    setSavedJobIds(ids);
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
             }
+        };
+
+        fetchData();
+    }, [token, role]);
+
+    // 2. HANDLE SAVE JOB (BOOKMARK)
+    const handleSaveJob = async (jobId) => {
+        if (!token) {
+            alert("Please login to save jobs.");
+            return navigate('/login');
+        }
+
+        try {
+            const res = await axios.post(
+                "http://localhost:5004/api/auth/save-job",
+                { jobId },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setSavedJobIds(res.data.savedJobs);
         } catch (error) {
-            console.error("Error fetching jobs:", error);
-            setJobs([]);
+            console.error("Error saving job", error);
+            alert("Could not save job.");
         }
     };
 
-    useEffect(() => {
-        fetchJobs();
-    }, []);
-
-    // 2. ACTIONS
+    // 3. APPLICATION ACTIONS
     const openApplyModal = (jobId) => {
         setSelectedJobId(jobId);
         setIsModalOpen(true);
@@ -58,12 +88,6 @@ const Dashboard = () => {
         if (!resumeFile) {
             alert("Please select a PDF resume first.");
             return;
-        }
-
-        const token = localStorage.getItem('token');
-        if (!token) {
-            alert("You must be logged in to apply!");
-            return navigate('/login');
         }
 
         const formData = new FormData();
@@ -86,7 +110,7 @@ const Dashboard = () => {
             alert("Application Submitted Successfully!");
             setIsModalOpen(false);
             setResumeFile(null);
-            fetchJobs(); 
+            window.location.reload(); 
         } catch (error) {
             const msg = error.response?.data?.message || "Error uploading application";
             alert(msg);
@@ -98,12 +122,11 @@ const Dashboard = () => {
     const handleWithdraw = async (jobId) => {
         if (window.confirm("Are you sure you want to withdraw your application?")) {
             try {
-                const token = localStorage.getItem('token');
                 await axios.put(`http://localhost:5004/api/jobs/withdraw/${jobId}`, {}, {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
                 alert("Application Withdrawn");
-                fetchJobs();
+                window.location.reload();
             } catch (error) {
                 alert(error.response?.data?.message || "Error withdrawing application");
             }
@@ -113,7 +136,6 @@ const Dashboard = () => {
     const handleDelete = async (jobId) => {
         if (window.confirm("Are you sure you want to delete this job?")) {
             try {
-                const token = localStorage.getItem('token');
                 await axios.delete(`http://localhost:5004/api/jobs/delete/${jobId}`, {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
@@ -125,7 +147,7 @@ const Dashboard = () => {
         }
     };
 
-    // 3. FILTER LOGIC
+    // 4. FILTER LOGIC
     const filteredJobs = jobs.filter(job => {
         const titleMatch = job.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
                            job.company?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -135,7 +157,6 @@ const Dashboard = () => {
 
     const getInitials = (name) => name ? name.substring(0, 2).toUpperCase() : "JP";
 
-    // --- NEW: Helper for Status Badge (For Job Seekers) ---
     const getStatusBadge = (status) => {
         const styles = {
             pending: { background: '#fef3c7', color: '#d97706', label: 'Pending' },
@@ -210,7 +231,6 @@ const Dashboard = () => {
                     <button className="btn-primary btn-apply search-btn-width">Search</button>
                 </div>
 
-                {/* RECRUITER POST BUTTON */}
                 {role === 'recruiter' && (
                     <div className="post-job-container">
                         <button onClick={() => navigate('/post-job')} className="btn-primary btn-apply btn-auto-width">
@@ -225,28 +245,54 @@ const Dashboard = () => {
                     {filteredJobs.length > 0 ? (
                         filteredJobs.map((job) => {
                             const applicants = job.applicants || [];
-                            
-                            // --- NEW LOGIC: FIND MY APPLICATION OBJECT ---
-                            // Since applicants is now an array of objects { user, status, resume }
-                            // We use .find() to see if the current userId exists in any of those objects
                             const myApplication = applicants.find(app => app.user === userId);
-                            const hasApplied = !!myApplication; // true if found
+                            const hasApplied = !!myApplication;
                             const myStatus = myApplication ? myApplication.status : null;
+                            const isSaved = savedJobIds.includes(job._id);
 
                             return (
                                 <div key={job._id} className="job-card">
                                     <div className="card-header">
-                                        <div className="company-logo">{getInitials(job.company)}</div>
                                         
-                                        {/* If User Applied, show Status Badge instead of bookmark */}
-                                        {hasApplied && role === 'seeker' ? (
-                                            getStatusBadge(myStatus)
-                                        ) : (
-                                            <svg className="bookmark-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                                                <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
-                                            </svg>
+                                        {/* --- NEW: LOGO OR INITIALS --- */}
+                                        <div className="company-logo-wrapper">
+                                            {job.logo ? (
+                                                <img 
+                                                    src={`http://localhost:5004/${job.logo}`} 
+                                                    alt="logo" 
+                                                    className="real-logo"
+                                                />
+                                            ) : (
+                                                <div className="company-logo-placeholder">
+                                                    {getInitials(job.company)}
+                                                </div>
+                                            )}
+                                        </div>
+                                        {/* ----------------------------- */}
+
+                                        {/* BOOKMARK ICON LOGIC */}
+                                        {role === 'seeker' && !hasApplied && (
+                                            <div 
+                                                onClick={() => handleSaveJob(job._id)} 
+                                                style={{cursor: 'pointer', color: isSaved ? '#14b8a6' : '#9ca3af'}}
+                                                title={isSaved ? "Unsave Job" : "Save Job"}
+                                            >
+                                                {isSaved ? (
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                                        <path d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/>
+                                                    </svg>
+                                                ) : (
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                                        <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
+                                                    </svg>
+                                                )}
+                                            </div>
                                         )}
+
+                                        {/* Status Badge overrides Bookmark if applied */}
+                                        {hasApplied && role === 'seeker' && getStatusBadge(myStatus)}
                                     </div>
+                                    
                                     <h3 className="job-title">{job.title}</h3>
                                     <div className="company-name">{job.company}</div>
 
@@ -273,7 +319,6 @@ const Dashboard = () => {
                                                 <button 
                                                     className="btn-primary btn-withdraw" 
                                                     onClick={() => handleWithdraw(job._id)}
-                                                    // Disable withdrawal if decision is already made
                                                     disabled={myStatus === 'shortlisted' || myStatus === 'rejected'}
                                                     style={ (myStatus === 'shortlisted' || myStatus === 'rejected') ? {opacity: 0.5, cursor: 'not-allowed'} : {}}
                                                 >

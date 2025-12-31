@@ -7,6 +7,7 @@ import JobApplicants from './pages/JobApplicants';
 import EditJob from './pages/EditJob';
 import UserProfile from './pages/UserProfile';
 import NotFound from './pages/NotFound'; // <--- 1. IMPORT THIS
+import SavedJobs from './pages/SavedJobs';
 
 
 // The Security Guard: Prevents unauthorized access
@@ -40,6 +41,7 @@ function App() {
           <Route path="/post-job" element={<ProtectedRoute allowedRole="recruiter"><PostJob /></ProtectedRoute>} />
           <Route path="/job-applicants/:jobId" element={<ProtectedRoute allowedRole="recruiter"><JobApplicants /></ProtectedRoute>} />
           <Route path="/edit-job/:jobId" element={<ProtectedRoute allowedRole="recruiter"><EditJob /></ProtectedRoute>} />
+          <Route path="/saved-jobs" element={<SavedJobs />} />
 
           {/* 3. CATCH-ALL 404 ROUTE (Must be at the bottom) */}
           <Route path="*" element={<NotFound />} />

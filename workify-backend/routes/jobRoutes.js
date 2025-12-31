@@ -13,7 +13,7 @@ const {
     updateJob,
     deleteJob,
     withdrawApplication,
-    updateApplicantStatus // <--- ADD THIS IMPORT
+    updateApplicantStatus 
 } = require('../controllers/jobController');
 
 const { protect } = require('../middleware/authMiddleware');
@@ -37,12 +37,13 @@ const storage = multer.diskStorage({
     }
 });
 
-// File Filter (Accept only PDFs)
+// --- CRITICAL FIX: Updated File Filter ---
+// Now accepts BOTH Images (for Logos) and PDFs (for Resumes)
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype === 'application/pdf') {
+    if (file.mimetype.startsWith('image/') || file.mimetype === 'application/pdf') {
         cb(null, true);
     } else {
-        cb(new Error('Not a PDF! Please upload only PDF files.'), false);
+        cb(new Error('Invalid file type! Only Images and PDFs are allowed.'), false);
     }
 };
 
@@ -59,8 +60,9 @@ const upload = multer({
 // Public: Anyone can view jobs
 router.get('/all', getAllJobs);
 
-// Protected: Post a job
-router.post('/post', protect, postJob);
+// --- CRITICAL FIX: Added upload.single('logo') ---
+// This allows the backend to read the FormData sent from the frontend
+router.post('/post', protect, upload.single('logo'), postJob);
 
 // Protected: Update a job
 router.put('/update/:id', protect, updateJob); 
@@ -71,10 +73,10 @@ router.delete('/delete/:jobId', protect, deleteJob);
 // Protected: Withdraw Application
 router.put('/withdraw/:jobId', protect, withdrawApplication);
 
-// Protected: Update Applicant Status (Shortlist/Reject) -- NEW ROUTE
+// Protected: Update Applicant Status (Shortlist/Reject)
 router.put('/status/:jobId/:applicantId', protect, updateApplicantStatus);
 
-// Protected: Apply for a job
+// Protected: Apply for a job (Accepts Resume)
 router.post('/apply/:jobId', protect, upload.single('resume'), applyForJob);
 
 // Protected: View Applicants
