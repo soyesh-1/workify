@@ -208,9 +208,9 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                {/* SEARCH BAR */}
+                {/* SEARCH BAR (CLEANED UP) */}
                 <div className="search-container">
-                    <svg className="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <svg className="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#94a3b8" viewBox="0 0 16 16" style={{marginLeft: '15px'}}>
                         <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
                     </svg>
                     <input 
@@ -228,16 +228,10 @@ const Dashboard = () => {
                         value={locationFilter}
                         onChange={(e) => setLocationFilter(e.target.value)}
                     />
-                    <button className="btn-primary btn-apply search-btn-width">Search</button>
+                    <button className="btn-search-teal">Search</button>
                 </div>
 
-                {role === 'recruiter' && (
-                    <div className="post-job-container">
-                        <button onClick={() => navigate('/post-job')} className="btn-primary btn-apply btn-auto-width">
-                            + Post New Job
-                        </button>
-                    </div>
-                )}
+                {/* REMOVED: The Post Job button that was here is gone. */}
 
                 <h2 className="section-title">Latest Opportunities</h2>
 
@@ -253,8 +247,6 @@ const Dashboard = () => {
                             return (
                                 <div key={job._id} className="job-card">
                                     <div className="card-header">
-                                        
-                                        {/* --- NEW: LOGO OR INITIALS --- */}
                                         <div className="company-logo-wrapper">
                                             {job.logo ? (
                                                 <img 
@@ -268,28 +260,25 @@ const Dashboard = () => {
                                                 </div>
                                             )}
                                         </div>
-                                        {/* ----------------------------- */}
 
-                                        {/* BOOKMARK ICON LOGIC */}
                                         {role === 'seeker' && !hasApplied && (
                                             <div 
                                                 onClick={() => handleSaveJob(job._id)} 
-                                                style={{cursor: 'pointer', color: isSaved ? '#14b8a6' : '#9ca3af'}}
+                                                className="bookmark-btn"
                                                 title={isSaved ? "Unsave Job" : "Save Job"}
                                             >
                                                 {isSaved ? (
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#0f766e" viewBox="0 0 16 16">
                                                         <path d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/>
                                                     </svg>
                                                 ) : (
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
                                                         <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
                                                     </svg>
                                                 )}
                                             </div>
                                         )}
 
-                                        {/* Status Badge overrides Bookmark if applied */}
                                         {hasApplied && role === 'seeker' && getStatusBadge(myStatus)}
                                     </div>
                                     
@@ -305,7 +294,7 @@ const Dashboard = () => {
 
                                     <div className="job-details-row">
                                         <div className="detail-item">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>
                                             {job.location}
                                         </div>
                                         <div className="detail-item"><span>Rs.</span> {job.salary}</div>
@@ -317,16 +306,16 @@ const Dashboard = () => {
                                         {role !== 'recruiter' ? (
                                             hasApplied ? (
                                                 <button 
-                                                    className="btn-primary btn-withdraw" 
+                                                    className="btn-withdraw" 
                                                     onClick={() => handleWithdraw(job._id)}
                                                     disabled={myStatus === 'shortlisted' || myStatus === 'rejected'}
                                                     style={ (myStatus === 'shortlisted' || myStatus === 'rejected') ? {opacity: 0.5, cursor: 'not-allowed'} : {}}
                                                 >
-                                                    {myStatus === 'pending' ? 'Withdraw Application' : `Application ${myStatus}`}
+                                                    {myStatus === 'pending' ? 'Withdraw' : `${myStatus}`}
                                                 </button>
                                             ) : (
                                                 <button 
-                                                    className="btn-primary btn-apply"
+                                                    className="btn-apply"
                                                     onClick={() => openApplyModal(job._id)}
                                                 >
                                                     Apply Now
@@ -334,7 +323,7 @@ const Dashboard = () => {
                                             )
                                         ) : (
                                             <>
-                                                <button className="btn-primary btn-outline" onClick={() => navigate(`/job-applicants/${job._id}`)}>
+                                                <button className="btn-outline" onClick={() => navigate(`/job-applicants/${job._id}`)}>
                                                     Applicants ({applicants.length})
                                                 </button>
                                                 <button className="action-icon-btn edit-bg" onClick={() => navigate(`/edit-job/${job._id}`)}>
@@ -344,6 +333,11 @@ const Dashboard = () => {
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fillRule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
                                                 </button>
                                             </>
+                                        )}
+                                        
+                                        {/* READ MORE BUTTON (Matched with Apply Now) */}
+                                        {role === 'seeker' && !hasApplied && (
+                                             <button className="btn-outline">Read More</button>
                                         )}
                                     </div>
                                 </div>

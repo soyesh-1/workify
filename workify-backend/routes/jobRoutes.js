@@ -64,8 +64,8 @@ router.get('/all', getAllJobs);
 // This allows the backend to read the FormData sent from the frontend
 router.post('/post', protect, upload.single('logo'), postJob);
 
-// Protected: Update a job
-router.put('/update/:id', protect, updateJob); 
+// Added upload.single('logo') to allow updating the image
+router.put('/update/:id', protect, upload.single('logo'), updateJob);
 
 // Protected: Delete a job
 router.delete('/delete/:jobId', protect, deleteJob);

@@ -141,22 +141,46 @@ exports.deleteJob = async (req, res) => {
     }
 };
 
-// 6. UPDATE A JOB
+// 6. UPDATE A JOB (Safe Update + Logo Support)
 exports.updateJob = async (req, res) => {
     try {
         const { id } = req.params; 
-        
         const job = await Job.findById(id); 
 
         if (!job) return res.status(404).json({ message: "Job not found" });
 
+        // Check ownership
         if (job.postedBy.toString() !== req.user.id) {
-            return res.status(401).json({ message: "Not authorized to update this job" });
+            return res.status(401).json({ message: "Not authorized" });
         }
 
-        const updatedJob = await Job.findByIdAndUpdate(id, req.body, { new: true });
+        // --- SMART UPDATE: Only update fields if new data is sent ---
+        const { title, company, location, description, salary, requirements, jobType } = req.body;
         
+        if (title) job.title = title;
+        if (company) job.company = company;
+        if (location) job.location = location;
+        if (description) job.description = description;
+        if (salary) job.salary = salary;
+        if (jobType) job.jobType = jobType;
+
+        // Handle Requirements Array
+        if (requirements) {
+            if (typeof requirements === 'string') {
+                job.requirements = requirements.split(',').map(r => r.trim()).filter(r => r !== "");
+            } else {
+                job.requirements = requirements;
+            }
+        }
+
+        // Handle Logo Update
+        if (req.file) {
+            job.logo = req.file.path;
+        }
+
+        const updatedJob = await job.save();
         res.json({ message: "Job Updated Successfully!", updatedJob });
+
     } catch (error) {
         res.status(500).json({ message: "Error updating job", error: error.message });
     }
