@@ -1,179 +1,183 @@
-/* Container */
+/* --- CONTAINER & HEADER --- */
 .applicants-container {
-    max-width: 1000px;
-    margin: 40px auto;
-    padding: 0 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px 40px 20px;
 }
 
-/* Header */
 .applicants-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     margin-bottom: 30px;
 }
 
-.back-btn {
-    background: none;
-    border: none;
-    color: #666;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: 500;
+.applicants-header h2 {
+    font-size: 1.8rem;
+    color: #0f172a;
+    margin: 0;
+    font-weight: 700;
 }
 
-.back-btn:hover {
-    color: #14b8a6;
-}
-
-/* Table Wrapper */
+/* --- TABLE CARD --- */
 .applicants-table-wrapper {
     background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    overflow: hidden;
-    border: 1px solid #eee;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    overflow: hidden; /* Clips the table corners */
+    border: 1px solid #e2e8f0;
 }
 
 .applicants-table {
     width: 100%;
     border-collapse: collapse;
+    text-align: left;
+}
+
+.applicants-table thead {
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .applicants-table th {
-    text-align: left;
-    background-color: #f9fafb;
-    padding: 15px 20px;
+    padding: 16px 24px;
+    font-size: 0.85rem;
     font-weight: 600;
-    color: #374151;
-    border-bottom: 1px solid #eee;
+    text-transform: uppercase;
+    color: #64748b;
+    letter-spacing: 0.05em;
 }
 
 .applicants-table td {
-    padding: 15px 20px;
-    border-bottom: 1px solid #f3f4f6;
+    padding: 20px 24px;
+    border-bottom: 1px solid #f1f5f9;
     vertical-align: middle;
+    color: #334155;
+    font-size: 0.95rem;
 }
 
-/* Candidate Info */
+.applicants-table tr:last-child td {
+    border-bottom: none;
+}
+
+.applicants-table tr:hover {
+    background-color: #f8fafc; /* Subtle hover effect on rows */
+}
+
+/* --- CANDIDATE INFO COLUMN --- */
 .candidate-info {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 15px;
 }
 
 .candidate-avatar {
     width: 40px;
     height: 40px;
-    background-color: #e0f2fe;
-    color: #0369a1;
+    background-color: #e0f2fe; /* Light Blue */
+    color: #0284c7;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
+    font-size: 1.1rem;
 }
 
 .candidate-name {
     font-weight: 600;
-    color: #111;
+    color: #0f172a;
+    margin-bottom: 2px;
 }
 
 .candidate-email {
     font-size: 0.85rem;
-    color: #6b7280;
+    color: #64748b;
 }
 
-/* Resume Link */
+/* --- RESUME LINK --- */
 .resume-link {
-    color: #2563eb;
+    color: #0284c7; /* Link Blue */
     text-decoration: none;
-    font-size: 0.9rem;
     font-weight: 500;
-    padding: 5px 10px;
-    background-color: #eff6ff;
-    border-radius: 4px;
+    font-size: 0.9rem;
+    padding: 6px 12px;
+    background: #f0f9ff;
+    border-radius: 6px;
+    transition: all 0.2s;
 }
 
 .resume-link:hover {
-    background-color: #dbeafe;
+    background: #e0f2fe;
+    text-decoration: none;
 }
 
-/* Status Badges */
+/* --- STATUS BADGES --- */
 .status-badge {
-    padding: 4px 10px;
-    border-radius: 20px;
+    padding: 6px 12px;
+    border-radius: 50px;
     font-size: 0.75rem;
     font-weight: 700;
+    text-transform: uppercase;
     letter-spacing: 0.5px;
+    display: inline-block;
 }
 
-.badge-warning {
-    background-color: #fef3c7;
-    color: #d97706; /* Yellow/Orange for Pending */
-}
+.badge-warning { background-color: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; } /* Pending (Orange) */
+.badge-success { background-color: #f0fdf4; color: #15803d; border: 1px solid #dcfce7; } /* Shortlisted (Green) */
+.badge-danger  { background-color: #fef2f2; color: #b91c1c; border: 1px solid #fee2e2; } /* Rejected (Red) */
 
-.badge-success {
-    background-color: #d1fae5;
-    color: #059669; /* Green for Shortlisted */
-}
-
-.badge-danger {
-    background-color: #fee2e2;
-    color: #dc2626; /* Red for Rejected */
-}
-
-/* Action Buttons */
+/* --- ACTION BUTTONS (Tick / Cross) --- */
 .action-buttons {
     display: flex;
     gap: 10px;
 }
 
 .btn-icon {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     border: none;
-    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
     transition: all 0.2s;
     font-size: 1rem;
 }
 
+/* Accept Button */
 .btn-accept {
-    background-color: #ecfdf5;
-    color: #059669;
-    border: 1px solid #a7f3d0;
+    background-color: #f0fdf4;
+    color: #16a34a;
 }
-
-.btn-accept:hover {
-    background-color: #059669;
+.btn-accept:hover:not(:disabled) {
+    background-color: #16a34a;
     color: white;
+    transform: scale(1.1);
 }
 
+/* Reject Button */
 .btn-reject {
     background-color: #fef2f2;
     color: #dc2626;
-    border: 1px solid #fecaca;
 }
-
-.btn-reject:hover {
+.btn-reject:hover:not(:disabled) {
     background-color: #dc2626;
     color: white;
+    transform: scale(1.1);
 }
 
 .btn-icon:disabled {
     opacity: 0.3;
     cursor: not-allowed;
-    filter: grayscale(100%);
+    transform: none;
 }
 
+/* --- EMPTY STATE --- */
 .empty-state {
     text-align: center;
-    padding: 40px;
-    color: #666;
-    background: #f9f9f9;
-    border-radius: 8px;
+    padding: 60px;
+    background: white;
+    border-radius: 16px;
+    border: 1px dashed #e2e8f0;
+    color: #64748b;
+    font-size: 1.1rem;
 }
