@@ -15,7 +15,6 @@ const Dashboard = () => {
     const [isApplyModalOpen, setIsApplyModalOpen] = useState(false); // For Resume Upload
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false); // For "Read More"
     const [selectedJob, setSelectedJob] = useState(null); // The job clicked
-    const [resumeFile, setResumeFile] = useState(null);
     const [uploading, setUploading] = useState(false);
 
     const role = localStorage.getItem('role');
@@ -63,10 +62,22 @@ const Dashboard = () => {
     };
 
     // --- OPEN APPLY MODAL ---
-    const openApply = (job) => {
+    const openApply = async (job) => {
+        try {
+            const userRes = await axios.get("http://localhost:5004/api/auth/profile", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (!userRes.data?.resume) {
+                alert("Please upload your resume in your profile before applying.");
+                navigate('/profile');
+                return;
+            }
+        } catch (error) {
+            alert("Unable to check resume. Please try again.");
+            return;
+        }
         setSelectedJob(job);
         setIsApplyModalOpen(true);
-        setResumeFile(null);
     };
 
     // --- CLOSE MODALS ---
@@ -77,15 +88,10 @@ const Dashboard = () => {
     };
 
     const submitApplication = async () => {
-        if (!resumeFile) return alert("Please select a PDF resume.");
-        const formData = new FormData();
-        formData.append('resume', resumeFile); 
-        formData.append('userId', userId);
-
         setUploading(true);
         try {
-            await axios.post(`http://localhost:5004/api/jobs/apply/${selectedJob._id}`, formData, {
-                headers: { "Content-Type": "multipart/form-data", "Authorization": `Bearer ${token}` }
+            await axios.post(`http://localhost:5004/api/jobs/apply/${selectedJob._id}`, {}, {
+                headers: { "Authorization": `Bearer ${token}` }
             });
             alert("Application Submitted!");
             closeModals();
@@ -165,7 +171,10 @@ const Dashboard = () => {
                     {filteredJobs.length > 0 ? (
                         filteredJobs.map((job) => {
                             const applicants = job.applicants || [];
-                            const myApplication = applicants.find(app => app.user === userId);
+                            const myApplication = applicants.find(app => {
+                                const applicantUserId = typeof app.user === 'string' ? app.user : app.user?._id;
+                                return applicantUserId === userId;
+                            });
                             const hasApplied = !!myApplication;
                             const myStatus = myApplication ? myApplication.status : null;
                             const isSaved = savedJobIds.includes(job._id);
@@ -238,8 +247,7 @@ const Dashboard = () => {
                 <div className="modal-overlay" onClick={closeModals}>
                     <div className="modal-content" onClick={e => e.stopPropagation()}>
                         <h3>Apply for {selectedJob?.title}</h3>
-                        <p>Upload your resume (PDF)</p>
-                        <input type="file" accept="application/pdf" className="file-input" onChange={e => setResumeFile(e.target.files[0])} />
+                        <p>We'll use the resume from your profile.</p>
                         <div className="modal-actions">
                             <button className="btn-cancel" onClick={closeModals}>Cancel</button>
                             <button className="btn-submit" onClick={submitApplication} disabled={uploading}>{uploading ? "..." : "Submit"}</button>
@@ -255,9 +263,9 @@ const Dashboard = () => {
                         <div className="modal-header">
                             <div className="modal-title">
                                 <h2>{selectedJob.title}</h2>
-                                <div className="company">{selectedJob.company} • {selectedJob.location}</div>
+                                <div className="company">{selectedJob.company} - {selectedJob.location}</div>
                             </div>
-                            <button className="btn-close-modal" onClick={closeModals}>✕</button>
+                            <button className="btn-close-modal" onClick={closeModals}>X</button>
                         </div>
 
                         <div className="modal-body">

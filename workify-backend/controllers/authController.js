@@ -1,5 +1,4 @@
 const User = require('../models/userModel');
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 // 1. REGISTER USER
@@ -25,12 +24,12 @@ exports.registerUser = async (req, res) => {
         });
         // --- CRITICAL CHANGE END ---
 
-        console.log(`✅ New User Registered: ${user.username} as ${user.role}`); 
+        console.log(`New user registered: ${user.username} as ${user.role}`);
 
         res.status(201).json({ 
             message: "User registered successfully!", 
             userId: user._id,
-            token: generateToken(user._id), // Helper function isn't defined globally in your snippet, using inline or import
+            token: generateToken(user._id, user.role),
             role: user.role
         });
     } catch (error) {
@@ -59,7 +58,7 @@ exports.loginUser = async (req, res) => {
             { expiresIn: '1d' }
         );
 
-        console.log(`🔑 User Logged In: ${user.email} (${user.role})`);
+        console.log(`User logged in: ${user.email} (${user.role})`);
 
         res.json({ 
             message: "Login Successful", 
@@ -123,4 +122,149 @@ exports.toggleSavedJob = async (req, res) => {
         console.error("Save Job Error:", error); // See exact error in terminal
         res.status(500).json({ message: "Server Error", error: error.message });
     }
+};
+
+// 5. CHANGE PASSWORD
+exports.changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        
+        // Find the user
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        // Verify current password
+        const isMatch = await user.matchPassword(currentPassword);
+        if (!isMatch) return res.status(400).json({ message: "Current password is incorrect" });
+
+        // Update password (pre-save hook will hash it)
+        user.password = newPassword;
+        await user.save();
+
+        res.json({ message: "Password changed successfully" });
+    } catch (error) {
+        console.error("Change Password Error:", error);
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+// 6. UPDATE AVATAR
+exports.updateAvatar = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: "Avatar image is required" });
+        }
+
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        user.avatar = req.file.path;
+        await user.save();
+
+        res.json({ message: "Avatar updated", avatar: user.avatar });
+    } catch (error) {
+        console.error("Avatar Update Error:", error);
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+// 7. UPDATE RESUME
+exports.updateResume = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: "Resume file is required" });
+        }
+
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        user.resume = req.file.path;
+        await user.save();
+
+        res.json({ message: "Resume updated", resume: user.resume });
+    } catch (error) {
+        console.error("Resume Update Error:", error);
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+// 7. UPDATE PROFILE
+exports.updateProfile = async (req, res) => {
+    try {
+        const {
+            username,
+            email,
+            phone,
+            location,
+            bio,
+            skills,
+            website,
+            linkedin,
+            github
+        } = req.body;
+
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        if (username && username !== user.username) {
+            const existingUsername = await User.findOne({ username });
+            if (existingUsername) {
+                return res.status(400).json({ message: "Username already in use" });
+            }
+            user.username = username;
+        }
+
+        if (email && email !== user.email) {
+            const existingEmail = await User.findOne({ email });
+            if (existingEmail) {
+                return res.status(400).json({ message: "Email already in use" });
+            }
+            user.email = email;
+        }
+
+        if (phone !== undefined) user.phone = phone;
+        if (location !== undefined) user.location = location;
+        if (bio !== undefined) user.bio = bio;
+        if (website !== undefined) user.website = website;
+        if (linkedin !== undefined) user.linkedin = linkedin;
+        if (github !== undefined) user.github = github;
+
+        if (skills !== undefined) {
+            if (typeof skills === 'string') {
+                user.skills = skills.split(',').map(s => s.trim()).filter(Boolean);
+            } else if (Array.isArray(skills)) {
+                user.skills = skills;
+            }
+        }
+
+        const updated = await user.save();
+        res.json({
+            message: "Profile updated",
+            user: {
+                _id: updated._id,
+                username: updated.username,
+                email: updated.email,
+                role: updated.role,
+                avatar: updated.avatar,
+                phone: updated.phone,
+                location: updated.location,
+                bio: updated.bio,
+                skills: updated.skills,
+                website: updated.website,
+                linkedin: updated.linkedin,
+                github: updated.github
+            }
+        });
+    } catch (error) {
+        console.error("Update Profile Error:", error);
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+const generateToken = (id, role) => {
+    return jwt.sign(
+        { id, role },
+        process.env.JWT_SECRET,
+        { expiresIn: '1d' }
+    );
 };

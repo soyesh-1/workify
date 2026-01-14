@@ -38,12 +38,18 @@ const storage = multer.diskStorage({
 });
 
 // --- CRITICAL FIX: Updated File Filter ---
-// Now accepts BOTH Images (for Logos) and PDFs (for Resumes)
+// Now accepts Images (for Logos), PDFs, and Word documents (for Resumes)
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype.startsWith('image/') || file.mimetype === 'application/pdf') {
+    const allowedMimes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+    
+    if (file.mimetype.startsWith('image/') || allowedMimes.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error('Invalid file type! Only Images and PDFs are allowed.'), false);
+        cb(new Error('Invalid file type! Only Images, PDFs, and Word documents are allowed.'), false);
     }
 };
 
@@ -76,8 +82,8 @@ router.put('/withdraw/:jobId', protect, withdrawApplication);
 // Protected: Update Applicant Status (Shortlist/Reject)
 router.put('/status/:jobId/:applicantId', protect, updateApplicantStatus);
 
-// Protected: Apply for a job (Accepts Resume)
-router.post('/apply/:jobId', protect, upload.single('resume'), applyForJob);
+// Protected: Apply for a job (Uses profile resume)
+router.post('/apply/:jobId', protect, applyForJob);
 
 // Protected: View Applicants
 router.get('/applicants/:jobId', protect, getJobApplicants);

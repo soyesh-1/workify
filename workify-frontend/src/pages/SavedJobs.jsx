@@ -17,6 +17,10 @@ const SavedJobs = () => {
         const fetchSavedJobs = async () => {
             try {
                 const token = localStorage.getItem('token');
+                if (!token) {
+                    navigate('/login');
+                    return;
+                }
                 const res = await axios.get("http://localhost:5004/api/auth/profile", {
                     headers: { Authorization: `Bearer ${token}` }
                 });
@@ -30,7 +34,7 @@ const SavedJobs = () => {
             }
         };
         fetchSavedJobs();
-    }, []);
+    }, [navigate]);
 
     const handleRemoveJob = async (jobId) => {
         try {
@@ -154,9 +158,9 @@ const SavedJobs = () => {
                         <div className="modal-header">
                             <div className="modal-title">
                                 <h2>{selectedJob.title}</h2>
-                                <div className="company">{selectedJob.company} • {selectedJob.location}</div>
+                                <div className="company">{selectedJob.company} - {selectedJob.location}</div>
                             </div>
-                            <button className="btn-close-modal" onClick={closeModal}>✕</button>
+                            <button className="btn-close-modal" onClick={closeModal}>X</button>
                         </div>
 
                         <div className="modal-body">

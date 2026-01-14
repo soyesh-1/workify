@@ -7,7 +7,7 @@ const jobSchema = new mongoose.Schema({
     description: { type: String, required: true },
     salary:      { type: String, required: true },
     requirements:{ type: [String], required: true }, 
-    jobType:     { type: String, enum: ['Full-time', 'Part-time', 'Remote', 'Internship'], default: 'Full-time' },
+    jobType:     { type: String, enum: ['Full-time', 'Part-time', 'Remote', 'Internship', 'Freelance'], default: 'Full-time' },
     
     // --- NEW: LOGO FIELD ---
     logo: { type: String }, 

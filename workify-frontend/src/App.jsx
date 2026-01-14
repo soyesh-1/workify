@@ -2,12 +2,15 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
+import BrowseJobs from './pages/BrowseJobs';
 import PostJob from './pages/PostJob';
 import JobApplicants from './pages/JobApplicants';
 import EditJob from './pages/EditJob';
 import UserProfile from './pages/UserProfile';
 import NotFound from './pages/NotFound'; 
 import SavedJobs from './pages/SavedJobs';
+import FAQ from './pages/FAQ';
+import Training from './pages/Training';
 
 
 // The Security Guard: Prevents unauthorized access
@@ -30,6 +33,7 @@ function App() {
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/browse-jobs" element={<BrowseJobs />} />
 
           {/* Secure Private Routes */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
@@ -45,7 +49,9 @@ function App() {
           {/* --- FIXED: Changed :jobId to :id to match EditJob.jsx --- */}
           <Route path="/edit-job/:id" element={<ProtectedRoute allowedRole="recruiter"><EditJob /></ProtectedRoute>} />
           
-          <Route path="/saved-jobs" element={<SavedJobs />} />
+          <Route path="/saved-jobs" element={<ProtectedRoute><SavedJobs /></ProtectedRoute>} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/training" element={<Training />} />
 
           {/* 3. CATCH-ALL 404 ROUTE (Must be at the bottom) */}
           <Route path="*" element={<NotFound />} />

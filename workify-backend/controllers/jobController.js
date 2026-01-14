@@ -68,12 +68,21 @@ exports.getAllJobs = async (req, res) => {
 // 3. APPLY FOR JOB
 exports.applyForJob = async (req, res) => {
     try {
+        console.log("📥 Receiving Job Application Request...");
+        console.log("📋 Params:", req.params);
+        console.log("👤 User:", req.user);
+        console.log("📁 File:", req.file);
+        
         const { jobId } = req.params;
         const userId = req.user.id; 
-        const resumePath = req.file ? req.file.path : null;
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        const resumePath = user.resume || null;
 
         if (!resumePath) {
-            return res.status(400).json({ message: "Resume file is required" });
+            console.log("❌ No resume on profile");
+            return res.status(400).json({ message: "Please upload your resume in your profile before applying." });
         }
 
         const job = await Job.findById(jobId);
@@ -108,7 +117,10 @@ exports.getJobApplicants = async (req, res) => {
     try {
         const { jobId } = req.params;
         
-        const job = await Job.findById(jobId).populate('applicants.user', 'username email');
+        const job = await Job.findById(jobId).populate(
+            'applicants.user',
+            'username email avatar phone location bio skills website linkedin github resume'
+        );
         
         if (!job) return res.status(404).json({ message: "Job not found" });
 

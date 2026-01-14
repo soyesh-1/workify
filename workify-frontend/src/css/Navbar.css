@@ -137,6 +137,17 @@
     color: #14b8a6; /* Matches your Teal brand */
 }
 
+.account-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #6d28d9; /* Purple icon like the mock */
+}
+
+.account-icon svg {
+    fill: currentColor;
+}
+
 /* The Dropdown Box */
 .dropdown-menu {
     position: absolute;

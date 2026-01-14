@@ -27,8 +27,8 @@ const Navbar = () => {
                 )}
                 {/* ---------------------------------------------- */}
 
-                <span className="nav-link">Training</span>
-                <span className="nav-link">About</span>
+                <Link to="/training" className="nav-link">Training</Link>
+                <Link to="/faq" className="nav-link">About</Link>
             </div>
 
             <div className="navbar-auth">
@@ -46,7 +46,12 @@ const Navbar = () => {
                                 onClick={() => setShowDropdown(!showDropdown)}
                                 className="btn-account"
                             >
-                                👤 Account ▼
+                                <span className="account-icon" aria-hidden="true">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                                        <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z"/>
+                                    </svg>
+                                </span>
+                                Account v
                             </button>
 
                             {showDropdown && (

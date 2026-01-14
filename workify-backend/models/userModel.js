@@ -21,6 +21,34 @@ const userSchema = new mongoose.Schema({
         enum: ['seeker', 'recruiter'], 
         default: 'seeker' 
     },
+
+    avatar: {
+        type: String
+    },
+    resume: {
+        type: String
+    },
+    phone: {
+        type: String
+    },
+    location: {
+        type: String
+    },
+    bio: {
+        type: String
+    },
+    skills: [{
+        type: String
+    }],
+    website: {
+        type: String
+    },
+    linkedin: {
+        type: String
+    },
+    github: {
+        type: String
+    },
     
     // --- NEW: SPRINT 5 - SAVED JOBS ---
     savedJobs: [{ 

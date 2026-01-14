@@ -10,6 +10,8 @@ const JobApplicants = () => {
     const navigate = useNavigate();
     const [applicants, setApplicants] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedApplicant, setSelectedApplicant] = useState(null);
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
 
     // 1. Fetch Applicants
     useEffect(() => {
@@ -57,6 +59,16 @@ const JobApplicants = () => {
             case 'rejected': return 'badge-danger';
             default: return 'badge-warning';
         }
+    };
+
+    const openProfile = (applicant) => {
+        setSelectedApplicant(applicant);
+        setIsProfileOpen(true);
+    };
+
+    const closeProfile = () => {
+        setIsProfileOpen(false);
+        setSelectedApplicant(null);
     };
 
     return (
@@ -107,7 +119,15 @@ const JobApplicants = () => {
                                             <td>
                                                 <div className="candidate-info">
                                                     <div className="candidate-avatar">
-                                                        {app.user.username.charAt(0).toUpperCase()}
+                                                        {app.user.avatar ? (
+                                                            <img
+                                                                src={`http://localhost:5004/${app.user.avatar}`}
+                                                                alt={app.user.username}
+                                                                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+                                                            />
+                                                        ) : (
+                                                            app.user.username.charAt(0).toUpperCase()
+                                                        )}
                                                     </div>
                                                     <div>
                                                         <div className="candidate-name">{app.user.username}</div>
@@ -117,14 +137,22 @@ const JobApplicants = () => {
                                             </td>
                                             <td>{new Date(app.appliedAt).toLocaleDateString()}</td>
                                             <td>
-                                                <a 
-                                                    href={`http://localhost:5004/${app.resume}`} 
-                                                    target="_blank" 
-                                                    rel="noopener noreferrer"
-                                                    className="resume-link"
-                                                >
-                                                    View CV ↗
-                                                </a>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                    <a 
+                                                        href={`http://localhost:5004/${app.resume}`} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                        className="resume-link"
+                                                    >
+                                                        View CV
+                                                    </a>
+                                                    <button
+                                                        className="resume-link"
+                                                        onClick={() => openProfile(app)}
+                                                    >
+                                                        View Profile
+                                                    </button>
+                                                </div>
                                             </td>
                                             <td>
                                                 <span className={`status-badge ${getStatusClass(app.status)}`}>
@@ -139,7 +167,7 @@ const JobApplicants = () => {
                                                         onClick={() => handleStatusUpdate(app.user._id, 'shortlisted')}
                                                         disabled={app.status === 'shortlisted'}
                                                     >
-                                                        ✓
+                                                        OK
                                                     </button>
                                                     <button 
                                                         className="btn-icon btn-reject"
@@ -147,7 +175,7 @@ const JobApplicants = () => {
                                                         onClick={() => handleStatusUpdate(app.user._id, 'rejected')}
                                                         disabled={app.status === 'rejected'}
                                                     >
-                                                        ✕
+                                                        X
                                                     </button>
                                                 </div>
                                             </td>
@@ -159,6 +187,57 @@ const JobApplicants = () => {
                     )}
                 </div>
             </div>
+
+            {isProfileOpen && selectedApplicant && (
+                <div className="modal-overlay" onClick={closeProfile}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()}>
+                        <h3>Applicant Profile</h3>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '15px' }}>
+                            <div style={{ width: '60px', height: '60px', borderRadius: '50%', overflow: 'hidden', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                {selectedApplicant.user.avatar ? (
+                                    <img
+                                        src={`http://localhost:5004/${selectedApplicant.user.avatar}`}
+                                        alt={selectedApplicant.user.username}
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    />
+                                ) : (
+                                    <span style={{ fontWeight: 'bold', color: '#64748b' }}>
+                                        {selectedApplicant.user.username.charAt(0).toUpperCase()}
+                                    </span>
+                                )}
+                            </div>
+                            <div>
+                                <div style={{ fontWeight: 'bold' }}>{selectedApplicant.user.username}</div>
+                                <div style={{ color: '#64748b' }}>{selectedApplicant.user.email}</div>
+                            </div>
+                        </div>
+
+                        {selectedApplicant.user.phone && <p><strong>Phone:</strong> {selectedApplicant.user.phone}</p>}
+                        {selectedApplicant.user.location && <p><strong>Location:</strong> {selectedApplicant.user.location}</p>}
+                        {selectedApplicant.user.bio && <p><strong>Bio:</strong> {selectedApplicant.user.bio}</p>}
+                        {selectedApplicant.user.skills && selectedApplicant.user.skills.length > 0 && (
+                            <p><strong>Skills:</strong> {selectedApplicant.user.skills.join(', ')}</p>
+                        )}
+                        {selectedApplicant.user.website && <p><strong>Website:</strong> {selectedApplicant.user.website}</p>}
+                        {selectedApplicant.user.linkedin && <p><strong>LinkedIn:</strong> {selectedApplicant.user.linkedin}</p>}
+                        {selectedApplicant.user.github && <p><strong>GitHub:</strong> {selectedApplicant.user.github}</p>}
+
+                        {selectedApplicant.user.resume && (
+                            <button
+                                className="btn-apply"
+                                style={{ marginTop: '10px' }}
+                                onClick={() => window.open(`http://localhost:5004/${selectedApplicant.user.resume}`, '_blank')}
+                            >
+                                View Profile Resume
+                            </button>
+                        )}
+
+                        <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'flex-end' }}>
+                            <button className="btn-outline" onClick={closeProfile}>Close</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

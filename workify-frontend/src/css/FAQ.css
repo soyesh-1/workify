@@ -1,0 +1,96 @@
+.faq-page {
+    min-height: calc(100vh - 70px);
+    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 60%);
+    padding-bottom: 60px;
+}
+
+.faq-hero {
+    background: radial-gradient(1200px 400px at 20% -50%, #dbeafe 0%, transparent 70%);
+    border-bottom: 1px solid #e2e8f0;
+    padding: 40px 20px;
+}
+
+.faq-hero-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.faq-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-size: 0.75rem;
+    color: #64748b;
+    margin: 0 0 10px 0;
+}
+
+.faq-title {
+    font-size: 2.5rem;
+    color: #0f172a;
+    margin: 0 0 8px 0;
+}
+
+.faq-subtitle {
+    margin: 0;
+    color: #475569;
+    max-width: 650px;
+}
+
+.faq-section {
+    max-width: 1000px;
+    margin: 30px auto 0 auto;
+    padding: 0 20px;
+}
+
+.faq-section-title {
+    font-size: 1.3rem;
+    margin: 10px 0 16px 0;
+    color: #0f172a;
+}
+
+.faq-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+}
+
+.faq-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 14px 16px;
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
+}
+
+.faq-card summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #0f172a;
+    list-style: none;
+}
+
+.faq-card summary::-webkit-details-marker {
+    display: none;
+}
+
+.faq-card summary:after {
+    content: "+";
+    float: right;
+    color: #0d9488;
+    font-weight: 700;
+}
+
+.faq-card[open] summary:after {
+    content: "-";
+}
+
+.faq-card p {
+    margin: 12px 0 0 0;
+    color: #475569;
+    font-size: 0.95rem;
+}
+
+@media (max-width: 600px) {
+    .faq-title {
+        font-size: 2rem;
+    }
+}
